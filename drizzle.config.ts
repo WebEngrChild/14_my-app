@@ -1,7 +1,13 @@
 import { config } from "dotenv";
 import { defineConfig } from "drizzle-kit";
 
-config({ path: "./apps/web/.env.local" });
+const envFile = process.env.DRIZZLE_ENV_FILE;
+
+if (!envFile) {
+  throw new Error("DRIZZLE_ENV_FILE is not set");
+}
+
+config({ path: envFile, override: true });
 
 const migrationUrl = process.env.DATABASE_MIGRATION_URL;
 

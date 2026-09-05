@@ -4,9 +4,21 @@ import postgres from "postgres";
 
 import { todos } from "./schema";
 
-config({ path: "./apps/web/.env.local" });
+const envFile = process.env.DRIZZLE_ENV_FILE;
 
-const client = postgres(process.env.DATABASE_URL!);
+if (!envFile) {
+  throw new Error("DRIZZLE_ENV_FILE is not set");
+}
+
+config({ path: envFile, override: true });
+
+const databaseUrl = process.env.DATABASE_MIGRATION_URL;
+
+if (!databaseUrl) {
+  throw new Error("DATABASE_MIGRATION_URL is not set");
+}
+
+const client = postgres(databaseUrl);
 const db = drizzle(client);
 
 await db.insert(todos).values([
