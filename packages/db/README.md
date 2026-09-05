@@ -13,7 +13,7 @@ bunx drizzle-kit migrate
 # 本番DBにマイグレーションを適用
 
 ```bash
-bun --env-file=.env.prd x drizzle-kit migrate
+bun --env-file=./apps/web/.env.prd x drizzle-kit migrate
 ```
 
 # マイグレーションファイルを検証
