@@ -22,10 +22,16 @@ DRIZZLE_ENV_FILE=./apps/web/.env.prd bunx drizzle-kit migrate
 DRIZZLE_ENV_FILE=./apps/web/.env.local bunx drizzle-kit check
 ```
 
-# Drizzle Studioを起動
+# ローカルDBをDrizzle Studioで開く
 
 ```bash
 DRIZZLE_ENV_FILE=./apps/web/.env.local bunx drizzle-kit studio
+```
+
+# 本番DBをDrizzle Studioで開く
+
+```bash
+DRIZZLE_ENV_FILE=./apps/web/.env.prd bunx drizzle-kit studio
 ```
 
 # ローカルDBにseedを実行
