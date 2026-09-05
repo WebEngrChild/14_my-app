@@ -14,3 +14,7 @@ override.tf.json
 *_override.tf.json
 .terraformrc
 terraform.rc
+
+.env
+.env.*
+!.env.example
