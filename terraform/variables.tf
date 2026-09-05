@@ -1,3 +1,6 @@
+/*
+ Supabase
+*/
 variable "supabase_organization_slug" {
   type = string
 }
