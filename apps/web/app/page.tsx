@@ -1,31 +1,17 @@
-"use client";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
-import { useEffect, useState } from "react";
+import { auth } from "../../../packages/auth";
+import HomeClient from "./home-client";
 
-type Todo = {
-  title: string;
-  body: string;
-};
+export default async function Home() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-export default function Home() {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  if (!session) {
+    redirect("/login");
+  }
 
-  useEffect(() => {
-    fetch("/api/todos")
-      .then((response) => response.json())
-      .then(setTodos);
-  }, []);
-
-  return (
-    <main>
-      <h1>TODO</h1>
-
-      {todos.map((todo) => (
-        <article key={todo.title}>
-          <h2>{todo.title}</h2>
-          <p>{todo.body}</p>
-        </article>
-      ))}
-    </main>
-  );
+  return <HomeClient />;
 }
