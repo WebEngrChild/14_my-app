@@ -1,5 +1,23 @@
 node_modules/
 
+# IDEs and editors
+.idea/
+.vscode/
+
+# Test and build outputs
+coverage/
+dist/
+
+# Logs
+*.log
+
+# Local databases
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.sqlite-*
+
 # Terraform
 **/.terraform/*
 *.tfstate
