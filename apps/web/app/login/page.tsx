@@ -7,46 +7,65 @@ import { authClient } from "../../lib/auth-client";
 export default function LoginPage() {
   const router = useRouter();
 
+  const [isSignUp, setIsSignUp] = useState(false);
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSignUp = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     setErrorMessage("");
 
-    const { error } = await authClient.signUp.email({
-      name,
-      email,
-      password,
-    });
+    if (isSignUp) {
+      const { error } = await authClient.signUp.email({
+        name,
+        email,
+        password,
+      });
 
-    if (error) {
-      setErrorMessage(error.message ?? "ユーザー登録に失敗しました");
-      return;
+      if (error) {
+        setErrorMessage(error.message ?? "ユーザー登録に失敗しました");
+        return;
+      }
+    } else {
+      const { error } = await authClient.signIn.email({
+        email,
+        password,
+      });
+
+      if (error) {
+        setErrorMessage(error.message ?? "ログインに失敗しました");
+        return;
+      }
     }
 
     router.push("/");
+    router.refresh();
   };
 
   return (
     <main className="flex min-h-screen items-center justify-center">
       <form
-        onSubmit={handleSignUp}
+        onSubmit={handleSubmit}
         className="flex w-full max-w-sm flex-col gap-4"
       >
-        <h1 className="text-2xl font-bold">ユーザー登録</h1>
+        <h1 className="text-2xl font-bold">
+          {isSignUp ? "ユーザー登録" : "ログイン"}
+        </h1>
 
-        <input
-          type="text"
-          placeholder="名前"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          className="rounded border p-2"
-          required
-        />
+        {isSignUp && (
+          <input
+            type="text"
+            placeholder="名前"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            className="rounded border p-2"
+            required
+          />
+        )}
 
         <input
           type="email"
@@ -75,7 +94,20 @@ export default function LoginPage() {
           type="submit"
           className="rounded bg-black px-4 py-2 text-white"
         >
-          登録
+          {isSignUp ? "登録" : "ログイン"}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setIsSignUp(!isSignUp);
+            setErrorMessage("");
+          }}
+          className="text-sm underline"
+        >
+          {isSignUp
+            ? "すでにアカウントをお持ちの方"
+            : "アカウントを新規作成"}
         </button>
       </form>
     </main>
