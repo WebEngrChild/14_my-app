@@ -1,10 +1,5 @@
-import type { Metadata } from "next";
 import "./globals.css";
-
-export const metadata: Metadata = {
-  title: "My App",
-  description: "My Next.js application",
-};
+import Header from "../components/header";
 
 export default function RootLayout({
   children,
@@ -14,15 +9,9 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body>
-        <header className="border-b">
-          <div className="mx-auto max-w-5xl px-6 py-4">
-            <h1 className="text-xl font-bold">My App</h1>
-          </div>
-        </header>
+        <Header />
 
-        <main className="mx-auto max-w-5xl px-6 py-8">
-          {children}
-        </main>
+        {children}
       </body>
     </html>
   );
