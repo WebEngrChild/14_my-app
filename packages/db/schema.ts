@@ -5,3 +5,5 @@ export const todos = pgTable("todos", {
   title: text().notNull(),
   body: text().notNull(),
 });
+
+export * from "./auth-schema";
