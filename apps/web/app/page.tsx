@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { auth } from "@my-app/auth";
+import { auth } from "@/server/auth";
 import HomeClient from "./home-client";
 
 export default async function Home() {

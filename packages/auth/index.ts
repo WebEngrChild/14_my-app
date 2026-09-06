@@ -1,16 +1,28 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 
-import { db } from "@my-app/db";
+import type { createDb } from "@my-app/db";
 import * as schema from "@my-app/db/schema";
 
-export const auth = betterAuth({
-  database: drizzleAdapter(db, {
-    provider: "pg",
-    schema,
-  }),
+type Database = ReturnType<typeof createDb>;
 
-  emailAndPassword: {
-    enabled: true,
-  },
-});
+type CreateAuthOptions = {
+  db: Database;
+  secret: string;
+  baseURL: string;
+};
+
+export function createAuth({ db, secret, baseURL }: CreateAuthOptions) {
+  return betterAuth({
+    secret,
+    baseURL,
+    database: drizzleAdapter(db, {
+      provider: "pg",
+      schema,
+    }),
+
+    emailAndPassword: {
+      enabled: true,
+    },
+  });
+}

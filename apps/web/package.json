@@ -9,12 +9,14 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@t3-oss/env-nextjs": "^0.13.11",
     "@my-app/auth": "workspace:*",
     "@my-app/db": "workspace:*",
     "better-auth": "^1.7.2",
     "next": "16.3.4",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

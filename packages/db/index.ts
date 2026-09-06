@@ -1,16 +1,12 @@
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
-const databaseUrl = process.env.DATABASE_URL;
+export function createDb(databaseUrl: string) {
+  const client = postgres(databaseUrl, {
+    prepare: false,
+  });
 
-if (!databaseUrl) {
-  throw new Error("DATABASE_URL is not set");
+  return drizzle({
+    client,
+  });
 }
-
-const client = postgres(databaseUrl, {
-  prepare: false,
-});
-
-export const db = drizzle({
-  client,
-});
