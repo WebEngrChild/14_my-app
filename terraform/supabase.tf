@@ -3,10 +3,4 @@ resource "supabase_project" "main" {
   name              = "my-app"
   database_password = var.supabase_database_password
   region            = "ap-northeast-1"
-
-  lifecycle {
-    ignore_changes = [
-      database_password
-    ]
-  }
 }

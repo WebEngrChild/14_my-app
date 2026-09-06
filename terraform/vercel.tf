@@ -13,9 +13,11 @@ resource "vercel_project" "web" {
 resource "vercel_project_environment_variable" "database_url" {
   project_id = vercel_project.web.id
 
-  key              = "DATABASE_URL"
-  value_wo         = var.database_url
-  value_wo_version = 2
+  key = "DATABASE_URL"
+
+  # value_wo_versionを増やしても、変更後のURLがVercelへ正しく反映されなかったため、
+  # Terraformが値の変更を追跡できる通常のvalueを使用する。
+  value = var.database_url
 
   target    = ["production"]
   sensitive = true
