@@ -10,4 +10,5 @@ export TF_VAR_supabase_database_password="your-db-password"
 export VERCEL_API_TOKEN="xxxxxxxx"
 export TF_VAR_database_url='postgresql://...'
 export TF_VAR_better_auth_secret="$(openssl rand -base64 32)"
+export TF_VAR_better_auth_url='https://my-app.vercel.app'
 ```
