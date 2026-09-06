@@ -1,5 +1,5 @@
-import { db } from "../../../packages/db";
-import { todos } from "../../../packages/db/schema";
+import { db } from "@my-app/db";
+import { todos } from "@my-app/db/schema";
 
 export async function listTodos() {
   return db
