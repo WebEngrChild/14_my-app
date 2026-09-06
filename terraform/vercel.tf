@@ -15,7 +15,7 @@ resource "vercel_project_environment_variable" "database_url" {
 
   key              = "DATABASE_URL"
   value_wo         = var.database_url
-  value_wo_version = 1
+  value_wo_version = 2
 
   target    = ["production"]
   sensitive = true
@@ -26,7 +26,7 @@ resource "vercel_project_environment_variable" "better_auth_secret" {
 
   key              = "BETTER_AUTH_SECRET"
   value_wo         = var.better_auth_secret
-  value_wo_version = 1
+  value_wo_version = 2
 
   target    = ["production"]
   sensitive = true
