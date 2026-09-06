@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "mock": "bun scripts/mock-server.ts"
+    "mock": "bun scripts/mock-server.ts",
+    "api:generate": "bun scripts/generate-api-types.ts"
   },
   "dependencies": {
     "@my-app/auth": "workspace:*",
@@ -16,6 +17,7 @@
     "@t3-oss/env-nextjs": "^0.13.11",
     "better-auth": "^1.7.2",
     "next": "16.3.4",
+    "openapi-fetch": "^0.17.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "zod": "^4.3.6",
@@ -30,6 +32,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
+    "openapi-typescript": "^7.13.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   },

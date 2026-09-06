@@ -2,18 +2,27 @@
 
 import { useEffect, useState } from "react";
 
-type Todo = {
-  title: string;
-  body: string;
-};
+import { apiClient } from "@/lib/api/client";
+import type { components } from "@/lib/api/generated";
+
+type Todo = components["schemas"]["Todo"];
 
 export default function Home() {
   const [todos, setTodos] = useState<Todo[]>([]);
 
   useEffect(() => {
-    fetch("/api/todos")
-      .then((response) => response.json())
-      .then(setTodos);
+    async function loadTodos() {
+      const { data, error } = await apiClient.GET("/api/todos");
+
+      if (error) {
+        console.error("TODOの取得に失敗しました", error);
+        return;
+      }
+
+      setTodos(data);
+    }
+
+    void loadTodos();
   }, []);
 
   return (

@@ -10,7 +10,8 @@
     "dev": "bun --filter web dev",
     "build": "bun --filter web build",
     "lint": "bun --filter web lint",
-    "mock": "bun --filter web mock"
+    "mock": "bun --filter web mock",
+    "api:generate": "bun --filter web api:generate"
   },
   "devDependencies": {
     "dotenv": "^17.4.2",
