@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "mock": "bun scripts/mock-server.ts"
   },
   "dependencies": {
     "@my-app/auth": "workspace:*",
@@ -21,7 +22,9 @@
     "zod-openapi": "^6.0.2"
   },
   "devDependencies": {
+    "@scalar/mock-server": "^0.13.0",
     "@tailwindcss/postcss": "^4",
+    "@types/bun": "1.3.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",

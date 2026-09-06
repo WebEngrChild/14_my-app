@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "bun --filter web dev",
     "build": "bun --filter web build",
-    "lint": "bun --filter web lint"
+    "lint": "bun --filter web lint",
+    "mock": "bun --filter web mock"
   },
   "devDependencies": {
     "dotenv": "^17.4.2",
