@@ -1,8 +1,7 @@
-import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
-
 import type { createDb } from "@my-app/db";
 import * as schema from "@my-app/db/schema";
+import { betterAuth } from "better-auth";
 
 type Database = ReturnType<typeof createDb>;
 

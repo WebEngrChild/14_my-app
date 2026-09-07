@@ -1,7 +1,7 @@
 "use client";
 
-import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import { type FormEvent, useState } from "react";
 import { authClient } from "../../lib/auth-client";
 
 export default function LoginPage() {
@@ -48,13 +48,8 @@ export default function LoginPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center">
-      <form
-        onSubmit={handleSubmit}
-        className="flex w-full max-w-sm flex-col gap-4"
-      >
-        <h1 className="text-2xl font-bold">
-          {isSignUp ? "ユーザー登録" : "ログイン"}
-        </h1>
+      <form onSubmit={handleSubmit} className="flex w-full max-w-sm flex-col gap-4">
+        <h1 className="text-2xl font-bold">{isSignUp ? "ユーザー登録" : "ログイン"}</h1>
 
         {isSignUp && (
           <input
@@ -86,14 +81,9 @@ export default function LoginPage() {
           required
         />
 
-        {errorMessage && (
-          <p className="text-sm text-red-500">{errorMessage}</p>
-        )}
+        {errorMessage && <p className="text-sm text-red-500">{errorMessage}</p>}
 
-        <button
-          type="submit"
-          className="rounded bg-black px-4 py-2 text-white"
-        >
+        <button type="submit" className="rounded bg-black px-4 py-2 text-white">
           {isSignUp ? "登録" : "ログイン"}
         </button>
 
@@ -105,9 +95,7 @@ export default function LoginPage() {
           }}
           className="text-sm underline"
         >
-          {isSignUp
-            ? "すでにアカウントをお持ちの方"
-            : "アカウントを新規作成"}
+          {isSignUp ? "すでにアカウントをお持ちの方" : "アカウントを新規作成"}
         </button>
       </form>
     </main>

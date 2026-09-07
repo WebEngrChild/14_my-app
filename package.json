@@ -9,11 +9,14 @@
   "scripts": {
     "dev": "bun --filter web dev",
     "build": "bun --filter web build",
-    "lint": "bun --filter web lint",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
     "mock": "bun --filter web mock",
     "api:generate": "bun --filter web api:generate"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.5.12",
     "dotenv": "^17.4.2",
     "drizzle-kit": "^0.31.10",
     "supabase": "^2.116.0"
