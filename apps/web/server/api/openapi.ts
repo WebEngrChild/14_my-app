@@ -1,6 +1,6 @@
 import { createDocument } from "zod-openapi";
 
-import { TodoListSchema } from "./schemas/todo";
+import { TodoCreateInput, TodoListSchema, TodoSchema } from "./schemas/todo";
 
 export const openApiDocument = createDocument({
   openapi: "3.1.0",
@@ -23,6 +23,31 @@ export const openApiDocument = createDocument({
             content: {
               "application/json": {
                 schema: TodoListSchema,
+              },
+            },
+          },
+        },
+      },
+
+      post: {
+        operationId: "createTodo",
+        summary: "TODOを作成する",
+        tags: ["Todos"],
+
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: TodoCreateInput,
+            },
+          },
+        },
+
+        responses: {
+          "201": {
+            description: "TODOの作成成功",
+            content: {
+              "application/json": {
+                schema: TodoSchema,
               },
             },
           },

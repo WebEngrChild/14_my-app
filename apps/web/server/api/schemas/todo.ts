@@ -18,3 +18,7 @@ export const TodoListSchema = z.array(TodoSchema).meta({
 });
 
 export type Todo = z.infer<typeof TodoSchema>;
+
+export const TodoCreateInput = TodoSchema;
+
+export type TodoCreateInput = z.infer<typeof TodoCreateInput>;

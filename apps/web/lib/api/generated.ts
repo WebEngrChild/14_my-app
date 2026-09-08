@@ -9,7 +9,8 @@ export interface paths {
         /** TODO一覧を取得する */
         get: operations["listTodos"];
         put?: never;
-        post?: never;
+        /** TODOを作成する */
+        post: operations["createTodo"];
         delete?: never;
         options?: never;
         head?: never;
@@ -20,10 +21,15 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** @description TODO一覧 */
-        TodoList: components["schemas"]["Todo"][];
         /** @description TODO */
         Todo: {
+            title: string;
+            body: string;
+        };
+        /** @description TODO一覧 */
+        TodoList: components["schemas"]["TodoOutput"][];
+        /** @description TODO */
+        TodoOutput: {
             title: string;
             body: string;
         };
@@ -52,6 +58,30 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TodoList"];
+                };
+            };
+        };
+    };
+    createTodo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["Todo"];
+            };
+        };
+        responses: {
+            /** @description TODOの作成成功 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TodoOutput"];
                 };
             };
         };
