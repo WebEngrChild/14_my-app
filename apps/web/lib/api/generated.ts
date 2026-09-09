@@ -17,19 +17,37 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/todos/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** TODOを更新する */
+        patch: operations["updateTodo"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /** @description TODO */
-        Todo: {
-            title: string;
-            body: string;
+        /** @description TODO更新入力(部分更新) */
+        TodoUpdateInput: {
+            title?: string;
+            body?: string;
         };
         /** @description TODO一覧 */
-        TodoList: components["schemas"]["TodoOutput"][];
+        TodoList: components["schemas"]["Todo"][];
         /** @description TODO */
-        TodoOutput: {
+        Todo: {
+            id: number;
             title: string;
             body: string;
         };
@@ -71,7 +89,10 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                "application/json": components["schemas"]["Todo"];
+                "application/json": {
+                    title: string;
+                    body: string;
+                };
             };
         };
         responses: {
@@ -81,8 +102,41 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["TodoOutput"];
+                    "application/json": components["schemas"]["Todo"];
                 };
+            };
+        };
+    };
+    updateTodo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["TodoUpdateInput"];
+            };
+        };
+        responses: {
+            /** @description TODOの更新成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Todo"];
+                };
+            };
+            /** @description 指定したidのTODOが存在しない */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
