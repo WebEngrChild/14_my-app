@@ -7,6 +7,7 @@ node_modules/
 # Test and build outputs
 coverage/
 dist/
+test-results/
 
 # Logs
 *.log
