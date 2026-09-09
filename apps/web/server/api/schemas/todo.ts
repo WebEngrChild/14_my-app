@@ -4,6 +4,7 @@ import { z } from "zod";
 
 export const TodoSchema = z
   .object({
+    id: z.number().int(),
     title: z.string(),
     body: z.string(),
   })
@@ -19,6 +20,13 @@ export const TodoListSchema = z.array(TodoSchema).meta({
 
 export type Todo = z.infer<typeof TodoSchema>;
 
-export const TodoCreateInput = TodoSchema;
+export const TodoCreateInput = TodoSchema.omit({ id: true });
 
 export type TodoCreateInput = z.infer<typeof TodoCreateInput>;
+
+export const TodoUpdateInput = TodoSchema.omit({ id: true }).partial().meta({
+  id: "TodoUpdateInput",
+  description: "TODO更新入力(部分更新)",
+});
+
+export type TodoUpdateInput = z.infer<typeof TodoUpdateInput>;
