@@ -1,5 +1,5 @@
 import { TodoSchema, TodoUpdateInput } from "@/server/api/schemas/todo";
-import { updateTodo } from "@/server/todos";
+import { deleteTodo, updateTodo } from "@/server/todos";
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -11,4 +11,15 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
 
   return Response.json(TodoSchema.parse(todo));
+}
+
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const todo = await deleteTodo(Number(id));
+
+  if (!todo) {
+    return new Response(null, { status: 404 });
+  }
+
+  return new Response(null, { status: 204 });
 }

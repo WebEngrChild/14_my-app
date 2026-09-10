@@ -32,3 +32,9 @@ export async function updateTodo(id: number, input: TodoUpdateInput) {
 
   return todo ?? null;
 }
+
+export async function deleteTodo(id: number) {
+  const [todo] = await db.delete(todos).where(eq(todos.id, id)).returning({ id: todos.id });
+
+  return todo ?? null;
+}

@@ -30,3 +30,7 @@ export const TodoUpdateInput = TodoSchema.omit({ id: true }).partial().meta({
 });
 
 export type TodoUpdateInput = z.infer<typeof TodoUpdateInput>;
+
+export const TodoIdParam = z.object({ id: z.coerce.number().int() });
+
+export type TodoIdParam = z.infer<typeof TodoIdParam>;

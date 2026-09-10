@@ -27,7 +27,8 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete?: never;
+        /** TODOを削除する */
+        delete: operations["deleteTodo"];
         options?: never;
         head?: never;
         /** TODOを更新する */
@@ -104,6 +105,33 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Todo"];
                 };
+            };
+        };
+    };
+    deleteTodo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description TODOの削除成功 */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 指定したidのTODOが存在しない */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

@@ -1,7 +1,6 @@
-import { z } from "zod";
 import { createDocument } from "zod-openapi";
 
-import { TodoCreateInput, TodoListSchema, TodoSchema, TodoUpdateInput } from "./schemas/todo";
+import { TodoCreateInput, TodoIdParam, TodoListSchema, TodoSchema, TodoUpdateInput } from "./schemas/todo";
 
 export const openApiDocument = createDocument({
   openapi: "3.1.0",
@@ -63,7 +62,7 @@ export const openApiDocument = createDocument({
         tags: ["Todos"],
 
         requestParams: {
-          path: z.object({ id: z.coerce.number().int() }),
+          path: TodoIdParam,
         },
 
         requestBody: {
@@ -82,6 +81,25 @@ export const openApiDocument = createDocument({
                 schema: TodoSchema,
               },
             },
+          },
+          "404": {
+            description: "指定したidのTODOが存在しない",
+          },
+        },
+      },
+
+      delete: {
+        operationId: "deleteTodo",
+        summary: "TODOを削除する",
+        tags: ["Todos"],
+
+        requestParams: {
+          path: TodoIdParam,
+        },
+
+        responses: {
+          "204": {
+            description: "TODOの削除成功",
           },
           "404": {
             description: "指定したidのTODOが存在しない",
