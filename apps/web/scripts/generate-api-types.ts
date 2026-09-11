@@ -1,7 +1,7 @@
 import { writeFile } from "node:fs/promises";
 import openapiTS, { astToString } from "openapi-typescript";
 
-import { openApiDocument } from "../server/api/openapi";
+import { openApiDocument } from "../server/handler/openapi";
 
 const ast = await openapiTS(JSON.stringify(openApiDocument));
 

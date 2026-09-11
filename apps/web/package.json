@@ -10,7 +10,8 @@
     "api:generate": "bun scripts/generate-api-types.ts",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:unit": "bun test server"
   },
   "dependencies": {
     "@my-app/auth": "workspace:*",

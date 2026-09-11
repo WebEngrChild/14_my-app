@@ -1,25 +1,11 @@
-import { TodoSchema, TodoUpdateInput } from "@/server/api/schemas/todo";
-import { deleteTodo, updateTodo } from "@/server/todos";
+import { todoHandler } from "@/server/container";
 
-export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const input = TodoUpdateInput.parse(await request.json());
-  const todo = await updateTodo(Number(id), input);
+type RouteContext = { params: Promise<{ id: string }> };
 
-  if (!todo) {
-    return new Response(null, { status: 404 });
-  }
-
-  return Response.json(TodoSchema.parse(todo));
+export async function PATCH(request: Request, { params }: RouteContext) {
+  return todoHandler.update(request, await params);
 }
 
-export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const todo = await deleteTodo(Number(id));
-
-  if (!todo) {
-    return new Response(null, { status: 404 });
-  }
-
-  return new Response(null, { status: 204 });
+export async function DELETE(_request: Request, { params }: RouteContext) {
+  return todoHandler.remove(await params);
 }

@@ -1,6 +1,6 @@
 import { createMockServer } from "@scalar/mock-server";
 
-import { openApiDocument } from "../server/api/openapi";
+import { openApiDocument } from "../server/handler/openapi";
 
 const app = await createMockServer({
   document: openApiDocument,

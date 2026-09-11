@@ -48,5 +48,157 @@
     "parser": {
       "tailwindDirectives": true
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["apps/web/server/domain/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "next",
+                      "next/**",
+                      "drizzle-orm",
+                      "drizzle-orm/**",
+                      "@my-app/**",
+                      "zod-openapi",
+                      "@/server/handler/**",
+                      "@/server/usecase/**",
+                      "@/server/repository/**",
+                      "@/server/container",
+                      "@/server/auth",
+                      "@/env/**",
+                      "@/app/**"
+                    ],
+                    "message": "domain層はHTTP・ORM・外側の層に依存できません"
+                  },
+                  {
+                    "group": ["../**"],
+                    "message": "レイヤーをまたぐ参照は @/server/... を使い、依存制約の対象にしてください"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/web/server/repository/todo-repository.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "next",
+                      "next/**",
+                      "drizzle-orm",
+                      "drizzle-orm/**",
+                      "@my-app/**",
+                      "zod-openapi",
+                      "@/server/handler/**",
+                      "@/server/usecase/**",
+                      "@/server/repository/**",
+                      "@/server/container",
+                      "@/server/auth",
+                      "@/env/**",
+                      "@/app/**"
+                    ],
+                    "message": "リポジトリのインターフェースはドメインに依存し、具象実装に依存しません"
+                  },
+                  {
+                    "group": ["../**"],
+                    "message": "レイヤーをまたぐ参照は @/server/... を使い、依存制約の対象にしてください"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/web/server/usecase/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "next",
+                      "next/**",
+                      "drizzle-orm",
+                      "drizzle-orm/**",
+                      "@my-app/**",
+                      "zod-openapi",
+                      "@/server/handler/**",
+                      "@/server/container",
+                      "@/server/auth",
+                      "@/server/repository/db",
+                      "@/server/repository/drizzle-*",
+                      "@/env/**",
+                      "@/app/**"
+                    ],
+                    "message": "usecase層はHTTP・DB接続・ORMの具象実装に依存できません"
+                  },
+                  {
+                    "group": ["../**"],
+                    "message": "レイヤーをまたぐ参照は @/server/... を使い、依存制約の対象にしてください"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["apps/web/server/handler/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": [
+                      "next",
+                      "next/**",
+                      "drizzle-orm",
+                      "drizzle-orm/**",
+                      "@my-app/**",
+                      "@/server/container",
+                      "@/server/auth",
+                      "@/env/**",
+                      "@/app/**",
+                      "@/server/repository/db",
+                      "@/server/repository/drizzle-*"
+                    ],
+                    "message": "handler層はユースケースを呼び出し、Next.jsやDB実装に依存しません"
+                  },
+                  {
+                    "group": ["../**"],
+                    "message": "レイヤーをまたぐ参照は @/server/... を使い、依存制約の対象にしてください"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }

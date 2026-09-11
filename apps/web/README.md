@@ -5,7 +5,7 @@
 APIのリクエストやレスポンスは、Zod Schemaを正本として定義します。
 
 ```text
-server/api/schemas/
+server/handler/schemas/
 └── todo.ts
 ```
 
@@ -20,7 +20,7 @@ const todos = TodoListSchema.parse(await listTodos());
 APIのパス、HTTPメソッド、レスポンスSchemaは、次のファイルに定義します。
 
 ```text
-server/api/openapi.ts
+server/handler/openapi.ts
 ```
 
 Zod Schemaから生成されたOpenAPIドキュメントは、開発サーバー起動後に次のURLで確認できます。

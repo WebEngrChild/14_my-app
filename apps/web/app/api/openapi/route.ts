@@ -1,4 +1,4 @@
-import { openApiDocument } from "@/server/api/openapi";
+import { openApiDocument } from "@/server/handler/openapi";
 
 export const dynamic = "force-static";
 

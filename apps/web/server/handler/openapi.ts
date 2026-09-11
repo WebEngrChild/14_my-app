@@ -1,6 +1,12 @@
 import { createDocument } from "zod-openapi";
 
-import { TodoCreateInput, TodoIdParam, TodoListSchema, TodoSchema, TodoUpdateInput } from "./schemas/todo";
+import {
+  TodoCreateInput,
+  TodoIdParam,
+  TodoListSchema,
+  TodoSchema,
+  TodoUpdateInput,
+} from "./schemas/todo";
 
 export const openApiDocument = createDocument({
   openapi: "3.1.0",
