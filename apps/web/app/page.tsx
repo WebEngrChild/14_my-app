@@ -1,8 +1,8 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import TodoList from "@/features/todo/components/todo-list";
 import { auth } from "@/server/auth";
-import HomeClient from "./home-client";
 
 export default async function Home() {
   const session = await auth.api.getSession({
@@ -13,5 +13,5 @@ export default async function Home() {
     redirect("/login");
   }
 
-  return <HomeClient />;
+  return <TodoList />;
 }

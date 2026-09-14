@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import LogoutButton from "./logout-button";
+import LogoutButton from "@/features/auth/components/logout-button";
 
 export default function Header() {
   const pathname = usePathname();
