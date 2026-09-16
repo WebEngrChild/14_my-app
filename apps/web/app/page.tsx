@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import TodoList from "@/features/todo/components/todo-list";
+import MemoApp from "@/features/todo/components/memo-app";
 import { auth } from "@/server/auth";
 
 export default async function Home() {
@@ -13,5 +13,5 @@ export default async function Home() {
     redirect("/login");
   }
 
-  return <TodoList />;
+  return <MemoApp />;
 }

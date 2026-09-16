@@ -8,7 +8,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body>
+      <body className="grid h-dvh grid-rows-[auto_minmax(0,1fr)]">
         <Header />
 
         {children}

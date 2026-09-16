@@ -4,7 +4,9 @@ import { z } from "zod";
 
 import { TodoSchema as DomainTodoSchema } from "@/server/domain/todo";
 
-export const TodoSchema = DomainTodoSchema.meta({
+export const TodoSchema = DomainTodoSchema.extend({
+  createdAt: z.iso.datetime({ offset: true }),
+}).meta({
   id: "Todo",
   description: "TODO",
 });
@@ -14,13 +16,14 @@ export const TodoListSchema = z.array(TodoSchema).meta({
   description: "TODO一覧",
 });
 
-export type { Todo } from "@/server/domain/todo";
+export type Todo = z.infer<typeof TodoSchema>;
 
-export const TodoCreateInput = TodoSchema.omit({ id: true });
+// 入力可能な項目を明示し、レスポンスの項目追加が入力契約に波及しないようにする。
+export const TodoCreateInput = TodoSchema.pick({ title: true, body: true });
 
 export type TodoCreateInput = z.infer<typeof TodoCreateInput>;
 
-export const TodoUpdateInput = TodoSchema.omit({ id: true }).partial().meta({
+export const TodoUpdateInput = TodoCreateInput.partial().meta({
   id: "TodoUpdateInput",
   description: "TODO更新入力(部分更新)",
 });
