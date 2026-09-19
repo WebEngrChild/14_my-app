@@ -1,14 +1,30 @@
+import { useEffect, useRef } from "react";
+
 type MemoEditorProps = {
+  focusTitle?: boolean;
   title: string;
   body: string;
   onTitleChange: (title: string) => void;
   onBodyChange: (body: string) => void;
 };
 
-export default function MemoEditor({ title, body, onTitleChange, onBodyChange }: MemoEditorProps) {
+export default function MemoEditor({
+  title,
+  body,
+  onTitleChange,
+  onBodyChange,
+  focusTitle = false,
+}: MemoEditorProps) {
+  const titleRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (focusTitle) titleRef.current?.focus();
+  }, [focusTitle]);
+
   return (
     <div className="flex min-h-full flex-col gap-5 p-12">
       <input
+        ref={titleRef}
         aria-label="メモのタイトル"
         type="text"
         value={title}
