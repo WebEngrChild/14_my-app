@@ -3,23 +3,28 @@
 import { useRef, useState } from "react";
 
 import type { components } from "@/lib/api/generated";
+import type { MemoSaver } from "../autosave/types";
+import { useMemoAutosave } from "../hooks/use-memo-autosave";
 import MemoEditor from "./memo-editor";
 import MemoList from "./memo-list";
+import MemoSaveStatus from "./memo-save-status";
 import MemoWorkspace from "./memo-workspace";
 import NewMemoButton from "./new-memo-button";
 
 type MemoScreenProps = {
   memos: components["schemas"]["Todo"][];
+  saveMemo?: MemoSaver;
 };
 
 type MemoDraft = Pick<components["schemas"]["Todo"], "title" | "body">;
 
-export default function MemoScreen({ memos }: MemoScreenProps) {
+export default function MemoScreen({ memos, saveMemo }: MemoScreenProps) {
+  const { scheduleSave, retrySave, saveStates } = useMemoAutosave(saveMemo);
   const [selectedId, setSelectedId] = useState<number | null>(memos[0]?.id ?? null);
   const [newMemos, setNewMemos] = useState<components["schemas"]["Todo"][]>([]);
   const nextLocalId = useRef(-1);
   const [focusTitleId, setFocusTitleId] = useState<number | null>(null);
-  // 下書きはメモごとに画面内で保持する。APIへの保存は後続ステップで対応する。
+  // 固定レスポンスで入力内容を上書きせず、モック送信後も画面内の下書きを保持する。
   const [drafts, setDrafts] = useState<Partial<Record<number, MemoDraft>>>({});
   const allMemos = [...newMemos, ...memos];
   const previewMemos = allMemos.map((memo) => ({ ...memo, ...drafts[memo.id] }));
@@ -36,6 +41,7 @@ export default function MemoScreen({ memos }: MemoScreenProps) {
     setNewMemos((previous) => [memo, ...previous]);
     setSelectedId(id);
     setFocusTitleId(id);
+    scheduleSave(id, { title: "", body: "" }, true);
   }
 
   function selectMemo(id: number) {
@@ -46,19 +52,36 @@ export default function MemoScreen({ memos }: MemoScreenProps) {
   function updateDraft(changes: Partial<MemoDraft>) {
     if (!selectedMemo) return;
 
+    const nextDraft = {
+      title: selectedMemo.title,
+      body: selectedMemo.body,
+      ...drafts[selectedMemo.id],
+      ...changes,
+    };
     setDrafts((previous) => ({
       ...previous,
-      [selectedMemo.id]: {
-        title: selectedMemo.title,
-        body: selectedMemo.body,
-        ...previous[selectedMemo.id],
-        ...changes,
-      },
+      [selectedMemo.id]: nextDraft,
     }));
+    scheduleSave(
+      selectedMemo.id,
+      nextDraft,
+      newMemos.some((memo) => memo.id === selectedMemo.id),
+    );
   }
 
   return (
     <MemoWorkspace
+      status={
+        saveMemo ? (
+          <MemoSaveStatus
+            status={selectedId === null ? "idle" : (saveStates[selectedId] ?? "idle")}
+            onRetry={() => {
+              if (selectedId !== null) retrySave(selectedId);
+            }}
+            hasErrors={Object.values(saveStates).includes("error")}
+          />
+        ) : undefined
+      }
       action={<NewMemoButton onClick={createMemo} />}
       list={<MemoList memos={previewMemos} selectedId={selectedId} onSelect={selectMemo} />}
       editor={

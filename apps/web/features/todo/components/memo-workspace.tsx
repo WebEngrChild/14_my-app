@@ -4,9 +4,10 @@ type MemoWorkspaceProps = {
   list?: ReactNode;
   editor?: ReactNode;
   action?: ReactNode;
+  status?: ReactNode;
 };
 
-export default function MemoWorkspace({ list, editor, action }: MemoWorkspaceProps) {
+export default function MemoWorkspace({ list, editor, action, status }: MemoWorkspaceProps) {
   return (
     <main
       aria-label="メモ"
@@ -20,6 +21,9 @@ export default function MemoWorkspace({ list, editor, action }: MemoWorkspacePro
       </aside>
       <section aria-label="メモ編集" className="relative min-h-0 min-w-0 overflow-hidden bg-white">
         <div className={`h-full overflow-y-auto ${action ? "pb-32" : ""}`}>{editor}</div>
+        {status ? (
+          <div className="absolute right-32 bottom-12 left-12 bg-white/95">{status}</div>
+        ) : null}
         {action ? <div className="absolute right-[46px] bottom-[45px]">{action}</div> : null}
       </section>
     </main>

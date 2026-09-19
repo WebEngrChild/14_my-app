@@ -1,11 +1,15 @@
 "use client";
 
+import { useMemo } from "react";
+
+import { createMockMemoSaver } from "@/features/todo/api/mock-memo-saver";
 import { useTodos } from "@/features/todo/hooks/use-todos";
 import MemoScreen from "./memo-screen";
 import MemoWorkspace from "./memo-workspace";
 
 export default function MemoApp() {
   const { todos, isLoading, error } = useTodos();
+  const saveMemo = useMemo(() => createMockMemoSaver(), []);
 
   if (isLoading) {
     return (
@@ -31,5 +35,5 @@ export default function MemoApp() {
     );
   }
 
-  return <MemoScreen memos={todos} />;
+  return <MemoScreen memos={todos} saveMemo={saveMemo} />;
 }
