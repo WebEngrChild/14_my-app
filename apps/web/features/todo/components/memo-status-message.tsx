@@ -15,9 +15,9 @@ export default function MemoStatusMessage({
   action,
 }: MemoStatusMessageProps) {
   return (
+    // role が読み上げ方（status=polite / alert=assertive）を決めるため aria-live は指定しない。
     <div
       role={role}
-      aria-live="polite"
       className="flex h-full min-h-32 flex-col items-center justify-center gap-2 px-5 py-12 text-center"
     >
       <p className="text-[13px] leading-[18px] text-[#666]">{message}</p>
