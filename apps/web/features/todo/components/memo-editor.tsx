@@ -22,7 +22,7 @@ export default function MemoEditor({
   }, [focusTitle]);
 
   return (
-    <div className="flex min-h-full flex-col gap-5 p-12">
+    <div className="flex min-h-full flex-col gap-4 p-5 md:gap-5 md:p-12">
       <input
         ref={titleRef}
         aria-label="メモのタイトル"
@@ -30,7 +30,7 @@ export default function MemoEditor({
         value={title}
         onChange={(event) => onTitleChange(event.target.value)}
         placeholder="無題のメモ"
-        className="w-full min-w-0 rounded-sm border-0 bg-transparent p-0 text-[28px] leading-9 font-semibold text-[#111] placeholder:text-[#999] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#999]"
+        className="w-full min-w-0 rounded-sm border-0 bg-transparent p-0 text-[22px] leading-7 font-semibold text-[#111] placeholder:text-[#999] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#999] md:text-[28px] md:leading-9"
       />
       <textarea
         aria-label="メモの本文"

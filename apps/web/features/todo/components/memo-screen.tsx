@@ -7,6 +7,7 @@ import type { MemoSaver } from "../autosave/types";
 import { useMemoAutosave } from "../hooks/use-memo-autosave";
 import MemoEditor from "./memo-editor";
 import MemoList from "./memo-list";
+import MemoSaveErrorNotice from "./memo-save-error-notice";
 import MemoSaveStatus from "./memo-save-status";
 import MemoStatusMessage from "./memo-status-message";
 import MemoWorkspace from "./memo-workspace";
@@ -25,6 +26,8 @@ export default function MemoScreen({ memos, saveMemo }: MemoScreenProps) {
   const [newMemos, setNewMemos] = useState<components["schemas"]["Todo"][]>([]);
   const nextLocalId = useRef(-1);
   const [focusTitleId, setFocusTitleId] = useState<number | null>(null);
+  // スマホは1カラムで一覧と編集を行き来する。PCでは md: 側の指定が勝つため影響しない。
+  const [mobileView, setMobileView] = useState<"list" | "editor">("list");
   // 固定レスポンスで入力内容を上書きせず、モック送信後も画面内の下書きを保持する。
   const [drafts, setDrafts] = useState<Partial<Record<number, MemoDraft>>>({});
   const allMemos = [...newMemos, ...memos];
@@ -33,6 +36,7 @@ export default function MemoScreen({ memos, saveMemo }: MemoScreenProps) {
   const selectedMemo = allMemos.find((memo) => memo.id === selectedId) ?? allMemos[0] ?? null;
   const activeId = selectedMemo?.id ?? null;
   const draft = selectedMemo ? (drafts[selectedMemo.id] ?? selectedMemo) : null;
+  const failedIds = allMemos.map((memo) => memo.id).filter((id) => saveStates[id] === "error");
 
   function createMemo() {
     // モック用の一時ID。実APIのIDとは区別し、連続クリックでも重複させない。
@@ -44,12 +48,14 @@ export default function MemoScreen({ memos, saveMemo }: MemoScreenProps) {
     setNewMemos((previous) => [memo, ...previous]);
     setSelectedId(id);
     setFocusTitleId(id);
+    setMobileView("editor");
     scheduleSave(id, { title: "", body: "" }, true);
   }
 
   function selectMemo(id: number) {
     setSelectedId(id);
     setFocusTitleId(null);
+    setMobileView("editor");
   }
 
   function updateDraft(changes: Partial<MemoDraft>) {
@@ -74,6 +80,8 @@ export default function MemoScreen({ memos, saveMemo }: MemoScreenProps) {
 
   return (
     <MemoWorkspace
+      mobileView={mobileView}
+      onBack={() => setMobileView("list")}
       status={
         saveMemo ? (
           <MemoSaveStatus
@@ -87,14 +95,19 @@ export default function MemoScreen({ memos, saveMemo }: MemoScreenProps) {
       }
       action={<NewMemoButton onClick={createMemo} />}
       list={
-        previewMemos.length === 0 ? (
-          <MemoStatusMessage
-            message="メモがありません"
-            hint="右下の「＋」から新しいメモを作成できます。"
-          />
-        ) : (
-          <MemoList memos={previewMemos} selectedId={activeId} onSelect={selectMemo} />
-        )
+        <>
+          {failedIds.length > 0 ? (
+            <MemoSaveErrorNotice count={failedIds.length} onOpen={() => selectMemo(failedIds[0])} />
+          ) : null}
+          {previewMemos.length === 0 ? (
+            <MemoStatusMessage
+              message="メモがありません"
+              hint="右下の「＋」から新しいメモを作成できます。"
+            />
+          ) : (
+            <MemoList memos={previewMemos} selectedId={activeId} onSelect={selectMemo} />
+          )}
+        </>
       }
       editor={
         selectedMemo && draft ? (
