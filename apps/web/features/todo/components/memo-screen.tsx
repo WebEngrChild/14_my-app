@@ -8,6 +8,7 @@ import { useMemoAutosave } from "../hooks/use-memo-autosave";
 import MemoEditor from "./memo-editor";
 import MemoList from "./memo-list";
 import MemoSaveStatus from "./memo-save-status";
+import MemoStatusMessage from "./memo-status-message";
 import MemoWorkspace from "./memo-workspace";
 import NewMemoButton from "./new-memo-button";
 
@@ -28,7 +29,9 @@ export default function MemoScreen({ memos, saveMemo }: MemoScreenProps) {
   const [drafts, setDrafts] = useState<Partial<Record<number, MemoDraft>>>({});
   const allMemos = [...newMemos, ...memos];
   const previewMemos = allMemos.map((memo) => ({ ...memo, ...drafts[memo.id] }));
-  const selectedMemo = allMemos.find((memo) => memo.id === selectedId);
+  // 一覧が入れ替わっても下書きを失わないよう選択はIDで保持し、消えたときだけ先頭に戻す。
+  const selectedMemo = allMemos.find((memo) => memo.id === selectedId) ?? allMemos[0] ?? null;
+  const activeId = selectedMemo?.id ?? null;
   const draft = selectedMemo ? (drafts[selectedMemo.id] ?? selectedMemo) : null;
 
   function createMemo() {
@@ -74,16 +77,25 @@ export default function MemoScreen({ memos, saveMemo }: MemoScreenProps) {
       status={
         saveMemo ? (
           <MemoSaveStatus
-            status={selectedId === null ? "idle" : (saveStates[selectedId] ?? "idle")}
+            status={activeId === null ? "idle" : (saveStates[activeId] ?? "idle")}
             onRetry={() => {
-              if (selectedId !== null) retrySave(selectedId);
+              if (activeId !== null) retrySave(activeId);
             }}
             hasErrors={Object.values(saveStates).includes("error")}
           />
         ) : undefined
       }
       action={<NewMemoButton onClick={createMemo} />}
-      list={<MemoList memos={previewMemos} selectedId={selectedId} onSelect={selectMemo} />}
+      list={
+        previewMemos.length === 0 ? (
+          <MemoStatusMessage
+            message="メモがありません"
+            hint="右下の「＋」から新しいメモを作成できます。"
+          />
+        ) : (
+          <MemoList memos={previewMemos} selectedId={activeId} onSelect={selectMemo} />
+        )
+      }
       editor={
         selectedMemo && draft ? (
           <MemoEditor
@@ -94,7 +106,9 @@ export default function MemoScreen({ memos, saveMemo }: MemoScreenProps) {
             onTitleChange={(title) => updateDraft({ title })}
             onBodyChange={(body) => updateDraft({ body })}
           />
-        ) : null
+        ) : (
+          <MemoStatusMessage message="編集するメモを選択してください" />
+        )
       }
     />
   );
