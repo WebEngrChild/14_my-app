@@ -5,11 +5,16 @@ import { TodoHandler } from "@/server/handler/todo-handler";
 import type { TodoRepository } from "@/server/repository/todo-repository";
 import { TodoUseCase } from "@/server/usecase/todo-usecase";
 
-const todo = { id: 1, title: "  title  ", body: "" };
+const todo = {
+  id: 1,
+  title: "  title  ",
+  body: "",
+  createdAt: "2026-09-15T18:15:00+09:00",
+};
 function setup(overrides: Partial<TodoRepository> = {}) {
   const repository: TodoRepository = {
     list: async () => [todo],
-    create: async (input) => ({ id: 1, ...input }),
+    create: async (input) => ({ ...todo, ...input }),
     update: async () => todo,
     delete: async () => ({ id: 1 }),
     ...overrides,
