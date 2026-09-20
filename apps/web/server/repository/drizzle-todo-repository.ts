@@ -26,11 +26,11 @@ export class DrizzleTodoRepository implements TodoRepository {
   constructor(private readonly db: ReturnType<typeof createDb>) {}
 
   async list() {
-    // 新しいメモが上に並ぶ。作成時刻が同値でも順が揺れないようIDを第2キーにする。
+    // 新しい/直近で更新されたメモが上に並ぶ。更新時刻が同値でも順が揺れないようIDを第2キーにする。
     const rows = await this.db
       .select(columns)
       .from(todos)
-      .orderBy(desc(todos.createdAt), desc(todos.id));
+      .orderBy(desc(todos.updatedAt), desc(todos.id));
     return rows.map(toTodo);
   }
 
@@ -42,7 +42,7 @@ export class DrizzleTodoRepository implements TodoRepository {
   async update(id: number, input: TodoUpdateInput) {
     const [todo] = await this.db
       .update(todos)
-      .set(input)
+      .set({ ...input, updatedAt: new Date() })
       .where(eq(todos.id, id))
       .returning(columns);
     return todo ? toTodo(todo) : null;

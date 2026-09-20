@@ -5,6 +5,7 @@ export const todos = pgTable("todos", {
   title: text().notNull(),
   body: text().notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export * from "./auth-schema";
