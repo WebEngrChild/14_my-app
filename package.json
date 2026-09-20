@@ -14,12 +14,14 @@
     "format": "biome format --write .",
     "mock": "bun --filter web mock",
     "api:generate": "bun --filter web api:generate",
+    "db:docs": "drizzle-docs generate ./packages/db/schema.ts -d postgresql -f markdown -o ./docs/db",
     "test:unit": "bun --filter web test:unit",
     "test:e2e": "bun --filter web test:e2e"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.12",
     "dotenv": "^17.4.2",
+    "drizzle-docs-generator": "^0.8.1",
     "drizzle-kit": "^0.31.10",
     "supabase": "^2.116.0"
   }
