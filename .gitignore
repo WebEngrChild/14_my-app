@@ -1,5 +1,8 @@
 node_modules/
 
+# Git internal directory (ignored by Git automatically, listed here for clarity)
+.git/
+
 # IDEs and editors
 .idea/
 .vscode/
