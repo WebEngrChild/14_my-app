@@ -1,6 +1,6 @@
 import type { Todo } from "@/server/domain/todo";
 
-export type TodoCreateInput = Omit<Todo, "id" | "createdAt">;
+export type TodoCreateInput = Omit<Todo, "id" | "createdAt" | "updatedAt">;
 export type TodoUpdateInput = Partial<TodoCreateInput>;
 
 /** TODOの永続化契約。HTTPやORM固有の型には依存しない。 */

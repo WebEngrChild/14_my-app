@@ -5,9 +5,10 @@ import { TodoUseCase } from "@/server/usecase/todo-usecase";
 
 function setup(overrides: Partial<TodoRepository> = {}) {
   const createdAt = "2026-09-15T09:15:00Z";
+  const updatedAt = "2026-09-15T09:15:00Z";
   const repository: TodoRepository = {
     list: async () => [],
-    create: async (input) => ({ id: 1, ...input, createdAt }),
+    create: async (input) => ({ id: 1, ...input, createdAt, updatedAt }),
     update: async () => null,
     delete: async () => null,
     ...overrides,
@@ -22,6 +23,7 @@ test("空文字と空白を含むデータをそのまま返す", async () => {
       title: "  title  ",
       body: "",
       createdAt: "2026-09-15T09:15:00Z",
+      updatedAt: "2026-09-15T09:15:00Z",
     },
   ];
   const usecase = setup({ list: async () => rows });
@@ -42,6 +44,7 @@ test("部分更新を事前読取や全項目更新に変換しない", async ()
         title: "",
         body: "DBの現在値",
         createdAt: "2026-09-15T09:15:00Z",
+        updatedAt: "2026-09-15T09:15:00Z",
       };
     },
   });
@@ -50,6 +53,7 @@ test("部分更新を事前読取や全項目更新に変換しない", async ()
     title: "",
     body: "DBの現在値",
     createdAt: "2026-09-15T09:15:00Z",
+    updatedAt: "2026-09-15T09:15:00Z",
   });
 });
 

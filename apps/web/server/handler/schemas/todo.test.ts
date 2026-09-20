@@ -9,32 +9,65 @@ describe("TodoSchema", () => {
       title: "買い物",
       body: "牛乳を買う",
       createdAt: "2026-09-15T18:15:00+09:00",
+      updatedAt: "2026-09-15T18:15:00+09:00",
     });
 
     expect(result.success).toBe(true);
   });
 
   test("作成日時がないレスポンスを拒否する", () => {
-    expect(TodoSchema.safeParse({ id: 1, title: "買い物", body: "牛乳を買う" }).success).toBe(
-      false,
-    );
+    expect(
+      TodoSchema.safeParse({
+        id: 1,
+        title: "買い物",
+        body: "牛乳を買う",
+        updatedAt: "2026-09-15T18:15:00+09:00",
+      }).success,
+    ).toBe(false);
   });
 
-  test("UTCの作成日時を受理する", () => {
+  test("更新日時がないレスポンスを拒否する", () => {
+    expect(
+      TodoSchema.safeParse({
+        id: 1,
+        title: "買い物",
+        body: "牛乳を買う",
+        createdAt: "2026-09-15T18:15:00+09:00",
+      }).success,
+    ).toBe(false);
+  });
+
+  test("UTCの作成日時・更新日時を受理する", () => {
     expect(
       TodoSchema.safeParse({
         id: 1,
         title: "買い物",
         body: "牛乳を買う",
         createdAt: "2026-09-15T09:15:00Z",
+        updatedAt: "2026-09-15T09:15:00Z",
       }).success,
     ).toBe(true);
   });
 
   test("不正な日時とタイムゾーンのない日時を拒否する", () => {
-    for (const createdAt of ["invalid", "2026-09-15", "2026-09-15T18:15:00"]) {
+    for (const invalid of ["invalid", "2026-09-15", "2026-09-15T18:15:00"]) {
       expect(
-        TodoSchema.safeParse({ id: 1, title: "買い物", body: "牛乳を買う", createdAt }).success,
+        TodoSchema.safeParse({
+          id: 1,
+          title: "買い物",
+          body: "牛乳を買う",
+          createdAt: invalid,
+          updatedAt: "2026-09-15T18:15:00+09:00",
+        }).success,
+      ).toBe(false);
+      expect(
+        TodoSchema.safeParse({
+          id: 1,
+          title: "買い物",
+          body: "牛乳を買う",
+          createdAt: "2026-09-15T18:15:00+09:00",
+          updatedAt: invalid,
+        }).success,
       ).toBe(false);
     }
   });
@@ -76,6 +109,7 @@ describe("TodoListSchema", () => {
         title: "買い物",
         body: "牛乳を買う",
         createdAt: "2026-09-15T18:15:00+09:00",
+        updatedAt: "2026-09-15T18:15:00+09:00",
       },
     ]);
 
@@ -84,13 +118,14 @@ describe("TodoListSchema", () => {
 });
 
 describe("TodoCreateInput", () => {
-  test("ID・作成日時・未知の項目を作成データから除外する", () => {
+  test("ID・作成日時・更新日時・未知の項目を作成データから除外する", () => {
     expect(
       TodoCreateInput.parse({
         id: 99,
         title: "買い物",
         body: "牛乳を買う",
         createdAt: "2026-09-15T09:15:00Z",
+        updatedAt: "2026-09-15T09:15:00Z",
         extra: "ignored",
       }),
     ).toEqual({ title: "買い物", body: "牛乳を買う" });
@@ -136,12 +171,13 @@ describe("TodoUpdateInput", () => {
     expect(TodoUpdateInput.parse({ body: "パンを買う" })).toEqual({ body: "パンを買う" });
   });
 
-  test("ID・作成日時・未知の項目を更新データから除外する", () => {
+  test("ID・作成日時・更新日時・未知の項目を更新データから除外する", () => {
     expect(
       TodoUpdateInput.parse({
         id: 99,
         body: "パンを買う",
         createdAt: "2026-09-15T09:15:00Z",
+        updatedAt: "2026-09-15T09:15:00Z",
         extra: "ignored",
       }),
     ).toEqual({ body: "パンを買う" });

@@ -13,6 +13,7 @@ const columns = {
   title: todos.title,
   body: todos.body,
   createdAt: todos.createdAt,
+  updatedAt: todos.updatedAt,
 };
 
 const toTodo = (todo: typeof todos.$inferSelect): Todo => ({
@@ -20,6 +21,7 @@ const toTodo = (todo: typeof todos.$inferSelect): Todo => ({
   title: todo.title,
   body: todo.body,
   createdAt: todo.createdAt.toISOString(),
+  updatedAt: todo.updatedAt.toISOString(),
 });
 
 export class DrizzleTodoRepository implements TodoRepository {

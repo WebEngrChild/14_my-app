@@ -10,6 +10,7 @@ const todo = {
   title: "  title  ",
   body: "",
   createdAt: "2026-09-15T18:15:00+09:00",
+  updatedAt: "2026-09-15T18:15:00+09:00",
 };
 function setup(overrides: Partial<TodoRepository> = {}) {
   const repository: TodoRepository = {

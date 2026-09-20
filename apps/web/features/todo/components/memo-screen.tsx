@@ -18,7 +18,13 @@ type MemoScreenProps = {
   saveMemo?: MemoSaver;
 };
 
-type MemoDraft = Pick<components["schemas"]["Todo"], "title" | "body">;
+type MemoDraft = Pick<components["schemas"]["Todo"], "title" | "body"> & { updatedAt: string };
+
+// DBの orderBy(desc(updatedAt), desc(id)) と同じ並びをフロントでも再現する。
+function byUpdatedAtDesc(a: components["schemas"]["Todo"], b: components["schemas"]["Todo"]) {
+  if (a.updatedAt !== b.updatedAt) return a.updatedAt < b.updatedAt ? 1 : -1;
+  return b.id - a.id;
+}
 
 export default function MemoScreen({ memos, saveMemo }: MemoScreenProps) {
   const { scheduleSave, retrySave, saveStates } = useMemoAutosave(saveMemo);
@@ -31,7 +37,9 @@ export default function MemoScreen({ memos, saveMemo }: MemoScreenProps) {
   // 保存レスポンスで入力内容を上書きせず、画面内の下書きを保持する。
   const [drafts, setDrafts] = useState<Partial<Record<number, MemoDraft>>>({});
   const allMemos = [...newMemos, ...memos];
-  const previewMemos = allMemos.map((memo) => ({ ...memo, ...drafts[memo.id] }));
+  const previewMemos = allMemos
+    .map((memo) => ({ ...memo, ...drafts[memo.id] }))
+    .sort(byUpdatedAtDesc);
   // 一覧が入れ替わっても下書きを失わないよう選択はIDで保持し、消えたときだけ先頭に戻す。
   const selectedMemo = allMemos.find((memo) => memo.id === selectedId) ?? allMemos[0] ?? null;
   const activeId = selectedMemo?.id ?? null;
@@ -44,7 +52,8 @@ export default function MemoScreen({ memos, saveMemo }: MemoScreenProps) {
       nextLocalId.current -= 1;
     }
     const id = nextLocalId.current--;
-    const memo = { id, title: "", body: "", createdAt: new Date().toISOString() };
+    const now = new Date().toISOString();
+    const memo = { id, title: "", body: "", createdAt: now, updatedAt: now };
     setNewMemos((previous) => [memo, ...previous]);
     setSelectedId(id);
     setFocusTitleId(id);
@@ -66,6 +75,7 @@ export default function MemoScreen({ memos, saveMemo }: MemoScreenProps) {
       body: selectedMemo.body,
       ...drafts[selectedMemo.id],
       ...changes,
+      updatedAt: new Date().toISOString(),
     };
     setDrafts((previous) => ({
       ...previous,
@@ -73,7 +83,7 @@ export default function MemoScreen({ memos, saveMemo }: MemoScreenProps) {
     }));
     scheduleSave(
       selectedMemo.id,
-      nextDraft,
+      { title: nextDraft.title, body: nextDraft.body },
       newMemos.some((memo) => memo.id === selectedMemo.id),
     );
   }

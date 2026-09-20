@@ -6,6 +6,7 @@ export const TodoSchema = z.object({
   title: z.string(),
   body: z.string(),
   createdAt: z.iso.datetime({ offset: true }),
+  updatedAt: z.iso.datetime({ offset: true }),
 });
 
 export type Todo = z.infer<typeof TodoSchema>;
