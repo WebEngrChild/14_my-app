@@ -4,9 +4,7 @@ export const todos = pgTable("todos", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   title: text().notNull(),
   body: text().notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .defaultNow()
-    .notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export * from "./auth-schema";
