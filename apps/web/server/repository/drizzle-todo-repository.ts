@@ -1,4 +1,4 @@
-import { type createDb, eq } from "@my-app/db";
+import { type createDb, desc, eq } from "@my-app/db";
 import { todos } from "@my-app/db/schema";
 
 import type { Todo } from "@/server/domain/todo";
@@ -26,7 +26,11 @@ export class DrizzleTodoRepository implements TodoRepository {
   constructor(private readonly db: ReturnType<typeof createDb>) {}
 
   async list() {
-    const rows = await this.db.select(columns).from(todos);
+    // 新しいメモが上に並ぶ。作成時刻が同値でも順が揺れないようIDを第2キーにする。
+    const rows = await this.db
+      .select(columns)
+      .from(todos)
+      .orderBy(desc(todos.createdAt), desc(todos.id));
     return rows.map(toTodo);
   }
 
