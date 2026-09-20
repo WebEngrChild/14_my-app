@@ -8,3 +8,4 @@
   - `bun run format`（フォーマット）
   - `bun run test:unit`（ユニットテスト）
   - `bun run test:e2e`（E2Eテスト）
+- `packages/db`配下のスキーマを変更した場合は、`bun run db:docs`を実行してDBドキュメント（`docs/db`）を更新すること
