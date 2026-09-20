@@ -12,7 +12,7 @@
     "build-storybook": "storybook build",
     "test:e2e": "playwright test",
     "test:unit": "bun test server",
-    "test:autosave": "bun test features/todo/autosave features/todo/api/mock-memo-saver.test.ts"
+    "test:autosave": "bun test features/todo/autosave features/todo/api/memo-saver.test.ts"
   },
   "dependencies": {
     "@my-app/auth": "workspace:*",

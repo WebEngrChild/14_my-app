@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 
-import { createMockMemoSaver } from "@/features/todo/api/mock-memo-saver";
+import { createMemoSaver } from "@/features/todo/api/memo-saver";
 import { useTodos } from "@/features/todo/hooks/use-todos";
 import MemoScreen from "./memo-screen";
 import MemoStatusMessage from "./memo-status-message";
@@ -10,7 +10,7 @@ import MemoWorkspace from "./memo-workspace";
 
 export default function MemoApp() {
   const { todos, isLoading, error, reload } = useTodos();
-  const saveMemo = useMemo(() => createMockMemoSaver(), []);
+  const saveMemo = useMemo(() => createMemoSaver(), []);
 
   if (isLoading) {
     return <MemoWorkspace list={<MemoStatusMessage message="読み込み中…" />} />;

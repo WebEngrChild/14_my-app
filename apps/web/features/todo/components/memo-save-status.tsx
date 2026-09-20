@@ -10,7 +10,7 @@ const labels: Record<SaveStatus, string> = {
   idle: "",
   pending: "送信待ち…",
   saving: "送信中…",
-  success: "モック送信済み",
+  success: "保存済み",
   error: "送信に失敗しました",
 };
 
@@ -21,7 +21,7 @@ export default function MemoSaveStatus({
 }: MemoSaveStatusProps) {
   return (
     <div className="space-y-1 text-xs text-[#666]">
-      <p>モック接続・再読み込みで変更は消えます</p>
+      <p>変更は自動保存されます</p>
       <div className="flex items-center gap-3">
         <p role="status" aria-live="polite">
           {labels[status]}

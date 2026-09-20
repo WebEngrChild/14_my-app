@@ -28,7 +28,7 @@ export default function MemoScreen({ memos, saveMemo }: MemoScreenProps) {
   const [focusTitleId, setFocusTitleId] = useState<number | null>(null);
   // スマホは1カラムで一覧と編集を行き来する。PCでは md: 側の指定が勝つため影響しない。
   const [mobileView, setMobileView] = useState<"list" | "editor">("list");
-  // 固定レスポンスで入力内容を上書きせず、モック送信後も画面内の下書きを保持する。
+  // 保存レスポンスで入力内容を上書きせず、画面内の下書きを保持する。
   const [drafts, setDrafts] = useState<Partial<Record<number, MemoDraft>>>({});
   const allMemos = [...newMemos, ...memos];
   const previewMemos = allMemos.map((memo) => ({ ...memo, ...drafts[memo.id] }));
@@ -39,7 +39,7 @@ export default function MemoScreen({ memos, saveMemo }: MemoScreenProps) {
   const failedIds = allMemos.map((memo) => memo.id).filter((id) => saveStates[id] === "error");
 
   function createMemo() {
-    // モック用の一時ID。実APIのIDとは区別し、連続クリックでも重複させない。
+    // 作成完了前の一時ID。実APIのIDとは区別し、連続クリックでも重複させない。
     while (allMemos.some((memo) => memo.id === nextLocalId.current)) {
       nextLocalId.current -= 1;
     }
