@@ -4,9 +4,10 @@ import type { TodoRepository } from "@/server/repository/todo-repository";
 import { TodoUseCase } from "@/server/usecase/todo-usecase";
 
 function setup(overrides: Partial<TodoRepository> = {}) {
+  const createdAt = "2026-09-15T09:15:00Z";
   const repository: TodoRepository = {
     list: async () => [],
-    create: async (input) => ({ id: 1, ...input }),
+    create: async (input) => ({ id: 1, ...input, createdAt }),
     update: async () => null,
     delete: async () => null,
     ...overrides,
@@ -15,7 +16,14 @@ function setup(overrides: Partial<TodoRepository> = {}) {
 }
 
 test("空文字と空白を含むデータをそのまま返す", async () => {
-  const rows = [{ id: 1, title: "  title  ", body: "" }];
+  const rows = [
+    {
+      id: 1,
+      title: "  title  ",
+      body: "",
+      createdAt: "2026-09-15T09:15:00Z",
+    },
+  ];
   const usecase = setup({ list: async () => rows });
   expect(await usecase.list()).toEqual(rows);
   expect(await usecase.create({ title: "  title  ", body: "" })).toEqual(rows[0]);
@@ -29,10 +37,20 @@ test("部分更新を事前読取や全項目更新に変換しない", async ()
     update: async (id, input) => {
       expect(id).toBe(7);
       expect(input).toEqual({ title: "" });
-      return { id, title: "", body: "DBの現在値" };
+      return {
+        id,
+        title: "",
+        body: "DBの現在値",
+        createdAt: "2026-09-15T09:15:00Z",
+      };
     },
   });
-  expect(await usecase.update(7, { title: "" })).toEqual({ id: 7, title: "", body: "DBの現在値" });
+  expect(await usecase.update(7, { title: "" })).toEqual({
+    id: 7,
+    title: "",
+    body: "DBの現在値",
+    createdAt: "2026-09-15T09:15:00Z",
+  });
 });
 
 test("更新・削除の実行時の不在をnullで返す", async () => {

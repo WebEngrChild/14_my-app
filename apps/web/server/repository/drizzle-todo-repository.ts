@@ -1,6 +1,7 @@
 import { type createDb, eq } from "@my-app/db";
 import { todos } from "@my-app/db/schema";
 
+import type { Todo } from "@/server/domain/todo";
 import type {
   TodoCreateInput,
   TodoRepository,
@@ -11,18 +12,27 @@ const columns = {
   id: todos.id,
   title: todos.title,
   body: todos.body,
+  createdAt: todos.createdAt,
 };
+
+const toTodo = (todo: typeof todos.$inferSelect): Todo => ({
+  id: todo.id,
+  title: todo.title,
+  body: todo.body,
+  createdAt: todo.createdAt.toISOString(),
+});
 
 export class DrizzleTodoRepository implements TodoRepository {
   constructor(private readonly db: ReturnType<typeof createDb>) {}
 
   async list() {
-    return this.db.select(columns).from(todos);
+    const rows = await this.db.select(columns).from(todos);
+    return rows.map(toTodo);
   }
 
   async create(input: TodoCreateInput) {
     const [todo] = await this.db.insert(todos).values(input).returning(columns);
-    return todo;
+    return toTodo(todo);
   }
 
   async update(id: number, input: TodoUpdateInput) {
@@ -31,7 +41,7 @@ export class DrizzleTodoRepository implements TodoRepository {
       .set(input)
       .where(eq(todos.id, id))
       .returning(columns);
-    return todo ?? null;
+    return todo ? toTodo(todo) : null;
   }
 
   async delete(id: number) {

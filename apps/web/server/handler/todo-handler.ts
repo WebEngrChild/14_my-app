@@ -18,7 +18,7 @@ export class TodoHandler {
   async create(request: Request) {
     const input = TodoCreateInput.parse(await request.json());
     const todo = await this.usecase.create(input);
-    return Response.json(todo, { status: 201 });
+    return Response.json(TodoSchema.parse(todo), { status: 201 });
   }
 
   async update(request: Request, params: { id: string }) {

@@ -4,9 +4,7 @@ import { z } from "zod";
 
 import { TodoSchema as DomainTodoSchema } from "@/server/domain/todo";
 
-export const TodoSchema = DomainTodoSchema.extend({
-  createdAt: z.iso.datetime({ offset: true }),
-}).meta({
+export const TodoSchema = DomainTodoSchema.meta({
   id: "Todo",
   description: "TODO",
 });
