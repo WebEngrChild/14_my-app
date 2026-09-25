@@ -1,5 +1,6 @@
 import { createDocument } from "zod-openapi";
 
+import { TagCreateInput, TagListQuery, TagListSchema, TagSchema } from "./schemas/tag";
 import {
   TodoCreateInput,
   TodoIdParam,
@@ -32,6 +33,11 @@ const memoExamples = TodoListSchema.parse([
   },
 ]);
 
+const tagExamples = TagListSchema.parse([
+  { id: 1, name: "仕事" },
+  { id: 2, name: "仕事関連" },
+]);
+
 export const openApiDocument = createDocument({
   openapi: "3.1.0",
 
@@ -41,6 +47,53 @@ export const openApiDocument = createDocument({
   },
 
   paths: {
+    "/api/tags": {
+      get: {
+        operationId: "listTags",
+        summary: "タグ一覧・候補を取得する",
+        description: "query指定時は名前の部分一致で検索する。省略時は一覧を返す。",
+        tags: ["Tags"],
+        requestParams: {
+          query: TagListQuery,
+        },
+        responses: {
+          "200": {
+            description: "タグ一覧の取得成功",
+            content: {
+              "application/json": {
+                schema: TagListSchema,
+                example: tagExamples,
+              },
+            },
+          },
+        },
+      },
+      post: {
+        operationId: "createTag",
+        summary: "タグを作成する",
+        tags: ["Tags"],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: TagCreateInput,
+              example: TagCreateInput.parse(tagExamples[0]),
+            },
+          },
+        },
+        responses: {
+          "201": {
+            description: "タグの作成成功",
+            content: {
+              "application/json": {
+                schema: TagSchema,
+                example: tagExamples[0],
+              },
+            },
+          },
+        },
+      },
+    },
     "/api/todos": {
       get: {
         operationId: "listTodos",
