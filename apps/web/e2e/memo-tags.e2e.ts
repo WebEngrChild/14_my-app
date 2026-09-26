@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 async function loginAsTestUser(page: Page) {
   await page.goto("/login");
@@ -9,9 +9,18 @@ async function loginAsTestUser(page: Page) {
   await expect(page).toHaveURL("http://localhost:3000/");
 }
 
-async function createSavedMemo(page: Page, title: string) {
+async function createSavedMemo(
+  page: Page,
+  title: string,
+  trackTodoForCleanup: (id: number) => void,
+) {
+  const createResponse = page.waitForResponse(
+    (response) => response.request().method() === "POST" && response.url().endsWith("/api/todos"),
+  );
   await page.getByRole("button", { name: "新しいメモを作成" }).click();
   await page.getByLabel("メモのタイトル").fill(title);
+  const { id } = await (await createResponse).json();
+  trackTodoForCleanup(id);
   // 保存完了(=実IDが払い出された状態)を待ってからタグ操作を行う
   await expect(page.getByRole("status", { name: "メモの保存状態" })).toHaveText("保存済み", {
     timeout: 10_000,
@@ -27,13 +36,13 @@ function memoListItem(page: Page, title: string) {
 
 async function createTagOnCurrentMemo(page: Page, tagName: string) {
   await page.getByLabel("タグを入力").fill(tagName);
-  const createButton = page.getByRole("button", { name: `+ #${tagName} を追加する` });
+  const createButton = page.getByRole("button", { name: `+ #${tagName}`, exact: true });
   await expect(createButton).toBeVisible();
   await createButton.click();
   await expect(page.getByText(`#${tagName}`)).toBeVisible();
 }
 
-test("タグの取得・付与・解除がページ再読み込み後も保持される", async ({ page }) => {
+test("タグの取得・付与・解除がページ再読み込み後も保持される", async ({ page, trackTodoForCleanup }) => {
   await loginAsTestUser(page);
 
   const suffix = Date.now();
@@ -42,12 +51,12 @@ test("タグの取得・付与・解除がページ再読み込み後も保持�
   const tagName = `E2Eタグ${suffix}`;
 
   await test.step("メモAを作成し、新規タグを作成して付与する", async () => {
-    await createSavedMemo(page, titleA);
+    await createSavedMemo(page, titleA, trackTodoForCleanup);
     await createTagOnCurrentMemo(page, tagName);
   });
 
   await test.step("メモBを作成し、既存タグ候補から付与する", async () => {
-    await createSavedMemo(page, titleB);
+    await createSavedMemo(page, titleB, trackTodoForCleanup);
 
     // 部分一致で検索し、GET /api/tags で取得した既存タグ候補が表示されることを確認する
     await page.getByLabel("タグを入力").fill(tagName.slice(0, -2));
@@ -60,16 +69,14 @@ test("タグの取得・付与・解除がページ再読み込み後も保持�
   });
 
   await test.step("メモBからタグを外す", async () => {
-    const detachButton = page.getByRole("button", {
-      name: `このメモからタグ「${tagName}」を外す`,
-    });
+    const tagInput = page.getByLabel("タグを入力");
     const chip = page.getByText(`#${tagName}`);
-    // 稀に1回目のクリックが取りこぼされることがあるため、消えなければもう一度試す
-    await detachButton.click();
+    // 稀に1回目のBackspaceが取りこぼされることがあるため、消えなければもう一度試す
+    await tagInput.press("Backspace");
     try {
       await expect(chip).toHaveCount(0, { timeout: 5_000 });
     } catch {
-      await detachButton.click();
+      await tagInput.press("Backspace");
       await expect(chip).toHaveCount(0, { timeout: 5_000 });
     }
   });
@@ -83,6 +90,7 @@ test("タグの取得・付与・解除がページ再読み込み後も保持�
 
 test("タグ付与に失敗した場合、エラー表示から再試行すると成功しDBにも反映される", async ({
   page,
+  trackTodoForCleanup,
 }) => {
   await loginAsTestUser(page);
 
@@ -104,10 +112,21 @@ test("タグ付与に失敗した場合、エラー表示から再試行する�
   const tagName = `E2E付与失敗タグ${suffix}`;
 
   // 保存完了を待たずにタグを追加し、新規メモ作成の「保存後に付与」経路を通す
+  const createResponse = page.waitForResponse(
+    (response) => response.request().method() === "POST" && response.url().endsWith("/api/todos"),
+  );
   await page.getByRole("button", { name: "新しいメモを作成" }).click();
   await page.getByLabel("メモのタイトル").fill(title);
+  void createResponse
+    .then(async (response) => {
+      const { id } = await response.json();
+      trackTodoForCleanup(id);
+    })
+    .catch(() => {
+      // 後始末用のID取得に失敗してもテスト本体には影響させない
+    });
   await page.getByLabel("タグを入力").fill(tagName);
-  await page.getByRole("button", { name: `+ #${tagName} を追加する` }).click();
+  await page.getByRole("button", { name: `+ #${tagName}`, exact: true }).click();
 
   // 楽観的にタグ自体はすぐ表示される
   await expect(page.getByText(`#${tagName}`)).toBeVisible();
@@ -130,14 +149,14 @@ test("タグ付与に失敗した場合、エラー表示から再試行する�
   await expect(page.getByText(`#${tagName}`)).toBeVisible({ timeout: 10_000 });
 });
 
-test("タグ取得に失敗した場合、再読み込みで復旧する", async ({ page }) => {
+test("タグ取得に失敗した場合、再読み込みで復旧する", async ({ page, trackTodoForCleanup }) => {
   await loginAsTestUser(page);
 
   const suffix = Date.now();
   const title = `E2E取得失敗 ${suffix}`;
   const tagName = `E2E取得失敗タグ${suffix}`;
 
-  await createSavedMemo(page, title);
+  await createSavedMemo(page, title, trackTodoForCleanup);
   const [attachResponse] = await Promise.all([
     page.waitForResponse(
       (response) =>

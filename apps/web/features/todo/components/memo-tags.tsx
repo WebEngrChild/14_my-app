@@ -22,6 +22,16 @@ export default function MemoTags({ tags, onSelect, onDetach }: MemoTagsProps) {
   const [revision, setRevision] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const savingRef = useRef(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const wasSavingRef = useRef(false);
+
+  useEffect(() => {
+    // disabled化でブラウザに奪われたフォーカスを、保存完了後に入力欄へ戻す。
+    if (wasSavingRef.current && !isSaving) {
+      inputRef.current?.focus();
+    }
+    wasSavingRef.current = isSaving;
+  }, [isSaving]);
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: revisionは明示的な再読み込みのための依存値。
   useEffect(() => {
@@ -49,8 +59,11 @@ export default function MemoTags({ tags, onSelect, onDetach }: MemoTagsProps) {
   const matches = ready ? result.tags : [];
   const candidates = matches.filter((tag) => !tags.some((selected) => selected.id === tag.id));
   const suggestions = [...new Set(candidates.map((tag) => tag.name))];
-  const state =
-    !query.trim() || !ready || error ? "Idle" : matches.length > 0 ? "Matching" : "NoMatch";
+  const trimmedQuery = query.trim();
+  // 付与済みタグでもマッチ一覧には残るため、除外前のmatchesで完全一致の有無を見て重複作成を防ぐ。
+  const hasExactMatch = matches.some((tag) => tag.name === trimmedQuery);
+  const canCreate = !error && ready && trimmedQuery.length > 0 && !hasExactMatch;
+  const state = !trimmedQuery || !ready || error ? "Idle" : "Open";
 
   function reload() {
     setResult(null);
@@ -84,27 +97,23 @@ export default function MemoTags({ tags, onSelect, onDetach }: MemoTagsProps) {
             className="flex items-center gap-2 rounded-md bg-[#f5f5f7] px-3 py-2 text-sm"
           >
             #{tag.name}
-            <button
-              type="button"
-              aria-label={`このメモからタグ「${tag.name}」を外す`}
-              disabled={isSaving}
-              className="rounded px-1 text-xs underline disabled:opacity-50"
-              onClick={() => {
-                void mutate(async () => {
-                  await onDetach(tag);
-                });
-              }}
-            >
-              このメモから外す
-            </button>
           </span>
         ))}
         <TagComposer
+          ref={inputRef}
           state={state}
           query={query}
           suggestions={suggestions}
+          canCreate={canCreate}
           disabled={isSaving}
           onQueryChange={setQuery}
+          onRemoveLast={() => {
+            const last = tags[tags.length - 1];
+            if (!last) return;
+            void mutate(async () => {
+              await onDetach(last);
+            });
+          }}
           onSelect={(name) => {
             const tag = candidates.find((candidate) => candidate.name === name);
             if (tag) {
@@ -115,7 +124,7 @@ export default function MemoTags({ tags, onSelect, onDetach }: MemoTagsProps) {
             }
           }}
           onCreate={() => {
-            if (state !== "NoMatch") return;
+            if (!canCreate) return;
             void mutate(async () => {
               const { data, response } = await createTag({ name: query.trim() });
               if (!response.ok || !data) throw new Error();
