@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 
 import type { components } from "@/lib/api/generated";
 import { createTag } from "../api/create-tag";
-import { deleteTag } from "../api/delete-tag";
 import { getTags } from "../api/get-tags";
 import TagComposer from "./tag-composer";
 
@@ -12,11 +11,11 @@ type Tag = components["schemas"]["Tag"];
 
 type MemoTagsProps = {
   tags: Tag[];
-  onSelect: (tag: Tag) => void;
-  onDelete: (id: number) => void;
+  onSelect: (tag: Tag) => Promise<void>;
+  onDetach: (tag: Tag) => Promise<void>;
 };
 
-export default function MemoTags({ tags, onSelect, onDelete }: MemoTagsProps) {
+export default function MemoTags({ tags, onSelect, onDetach }: MemoTagsProps) {
   const [query, setQuery] = useState("");
   const [result, setResult] = useState<{ query: string; tags: Tag[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -87,18 +86,16 @@ export default function MemoTags({ tags, onSelect, onDelete }: MemoTagsProps) {
             #{tag.name}
             <button
               type="button"
-              aria-label={`タグ「${tag.name}」を削除（すべてのメモから削除）`}
+              aria-label={`このメモからタグ「${tag.name}」を外す`}
               disabled={isSaving}
               className="rounded px-1 text-xs underline disabled:opacity-50"
               onClick={() => {
                 void mutate(async () => {
-                  const { response } = await deleteTag(tag.id);
-                  if (!response.ok && response.status !== 404) throw new Error();
-                  onDelete(tag.id);
+                  await onDetach(tag);
                 });
               }}
             >
-              タグを削除
+              このメモから外す
             </button>
           </span>
         ))}
@@ -111,8 +108,10 @@ export default function MemoTags({ tags, onSelect, onDelete }: MemoTagsProps) {
           onSelect={(name) => {
             const tag = candidates.find((candidate) => candidate.name === name);
             if (tag) {
-              onSelect(tag);
-              setQuery("");
+              void mutate(async () => {
+                await onSelect(tag);
+                setQuery("");
+              });
             }
           }}
           onCreate={() => {
@@ -120,7 +119,7 @@ export default function MemoTags({ tags, onSelect, onDelete }: MemoTagsProps) {
             void mutate(async () => {
               const { data, response } = await createTag({ name: query.trim() });
               if (!response.ok || !data) throw new Error();
-              onSelect(data);
+              await onSelect(data);
             });
           }}
         />

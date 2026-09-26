@@ -1,8 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import type { components } from "@/lib/api/generated";
+import { attachTodoTag } from "../api/attach-todo-tag";
+import { detachTodoTag } from "../api/detach-todo-tag";
+import { getTodoTags } from "../api/get-todo-tags";
 import type { MemoSaver } from "../autosave/types";
 import { useMemoAutosave } from "../hooks/use-memo-autosave";
 import MemoEditor from "./memo-editor";
@@ -32,6 +35,15 @@ export default function MemoScreen({ memos, saveMemo, enableTags = false }: Memo
   const [tagsByMemo, setTagsByMemo] = useState<
     Partial<Record<number, components["schemas"]["Tag"][]>>
   >({});
+  const [pendingTagAttachments, setPendingTagAttachments] = useState<
+    Partial<Record<number, components["schemas"]["Tag"][]>>
+  >({});
+  const [tagLoadErrors, setTagLoadErrors] = useState<Partial<Record<number, boolean>>>({});
+  const [tagAttachmentError, setTagAttachmentError] = useState(false);
+  const [tagAttachmentRetry, setTagAttachmentRetry] = useState(0);
+  const attachingTags = useRef(new Set<string>());
+  const failedTagAttachments = useRef(new Set<string>());
+  const lastTagAttachmentRetry = useRef(0);
   const { scheduleSave, retrySave, saveStates } = useMemoAutosave(saveMemo);
   const [selectedId, setSelectedId] = useState<number | null>(memos[0]?.id ?? null);
   const [newMemos, setNewMemos] = useState<components["schemas"]["Todo"][]>([]);
@@ -50,6 +62,71 @@ export default function MemoScreen({ memos, saveMemo, enableTags = false }: Memo
   const activeId = selectedMemo?.id ?? null;
   const draft = selectedMemo ? (drafts[selectedMemo.id] ?? selectedMemo) : null;
   const failedIds = allMemos.map((memo) => memo.id).filter((id) => saveStates[id] === "error");
+
+  useEffect(() => {
+    if (!enableTags || !selectedMemo || selectedMemo.id < 1 || tagsByMemo[selectedMemo.id]) {
+      return;
+    }
+
+    const controller = new AbortController();
+    void getTodoTags(selectedMemo.id, controller.signal)
+      .then(({ data, response }) => {
+        if (controller.signal.aborted) return;
+        if (!response.ok || !data) throw new Error();
+        setTagsByMemo((previous) => ({ ...previous, [selectedMemo.id]: data }));
+        setTagLoadErrors((previous) => ({ ...previous, [selectedMemo.id]: false }));
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) {
+          setTagLoadErrors((previous) => ({ ...previous, [selectedMemo.id]: true }));
+        }
+      });
+    return () => controller.abort();
+  }, [enableTags, selectedMemo, tagsByMemo]);
+
+  useEffect(() => {
+    if (!saveMemo?.resolveId) return;
+    const retrying = tagAttachmentRetry > lastTagAttachmentRetry.current;
+    lastTagAttachmentRetry.current = tagAttachmentRetry;
+
+    for (const [localIdText, pendingTags] of Object.entries(pendingTagAttachments)) {
+      const localId = Number(localIdText);
+      const serverId = saveMemo.resolveId(localId);
+      if (saveStates[localId] !== "success" || serverId === undefined || !pendingTags?.length)
+        continue;
+
+      for (const tag of pendingTags) {
+        const key = `${localId}:${tag.id}`;
+        if (
+          attachingTags.current.has(key) ||
+          (failedTagAttachments.current.has(key) && !retrying)
+        ) {
+          continue;
+        }
+        attachingTags.current.add(key);
+        void attachTodoTag(serverId, tag.id)
+          .then(({ response }) => {
+            if (!response.ok) throw new Error();
+            failedTagAttachments.current.delete(key);
+            setTagsByMemo((previous) => {
+              const current = previous[localId] ?? [];
+              return current.some((item) => item.id === tag.id)
+                ? previous
+                : { ...previous, [localId]: [...current, tag] };
+            });
+            setPendingTagAttachments((previous) => ({
+              ...previous,
+              [localId]: (previous[localId] ?? []).filter((item) => item.id !== tag.id),
+            }));
+          })
+          .catch(() => {
+            failedTagAttachments.current.add(key);
+            setTagAttachmentError(true);
+          })
+          .finally(() => attachingTags.current.delete(key));
+      }
+    }
+  }, [pendingTagAttachments, saveMemo, saveStates, tagAttachmentRetry]);
 
   function createMemo() {
     // 作成完了前の一時ID。実APIのIDとは区別し、連続クリックでも重複させない。
@@ -130,27 +207,92 @@ export default function MemoScreen({ memos, saveMemo, enableTags = false }: Memo
             key={selectedMemo.id}
             tags={
               enableTags ? (
-                <MemoTags
-                  tags={tagsByMemo[selectedMemo.id] ?? []}
-                  onSelect={(tag) => {
-                    const memoId = selectedMemo.id;
-                    setTagsByMemo((previous) => {
-                      const tags = previous[memoId] ?? [];
-                      if (tags.some((item) => item.id === tag.id)) return previous;
-                      return { ...previous, [memoId]: [...tags, tag] };
-                    });
-                  }}
-                  onDelete={(id) => {
-                    setTagsByMemo((previous) =>
-                      Object.fromEntries(
-                        Object.entries(previous).map(([memoId, tags]) => [
-                          memoId,
-                          (tags ?? []).filter((tag) => tag.id !== id),
-                        ]),
-                      ),
-                    );
-                  }}
-                />
+                <>
+                  <MemoTags
+                    tags={tagsByMemo[selectedMemo.id] ?? []}
+                    onSelect={async (tag) => {
+                      const memoId = selectedMemo.id;
+                      if (memoId < 0) {
+                        setPendingTagAttachments((previous) => {
+                          const pending = previous[memoId] ?? [];
+                          return pending.some((item) => item.id === tag.id)
+                            ? previous
+                            : { ...previous, [memoId]: [...pending, tag] };
+                        });
+                        setTagsByMemo((previous) => ({
+                          ...previous,
+                          [memoId]: [...(previous[memoId] ?? []), tag],
+                        }));
+                        return;
+                      }
+                      const { response } = await attachTodoTag(memoId, tag.id);
+                      if (!response.ok) throw new Error();
+                      setTagsByMemo((previous) => {
+                        const current = previous[memoId] ?? [];
+                        return current.some((item) => item.id === tag.id)
+                          ? previous
+                          : { ...previous, [memoId]: [...current, tag] };
+                      });
+                    }}
+                    onDetach={async (tag) => {
+                      const memoId = selectedMemo.id;
+                      if (memoId < 0) {
+                        setPendingTagAttachments((previous) => ({
+                          ...previous,
+                          [memoId]: (previous[memoId] ?? []).filter((item) => item.id !== tag.id),
+                        }));
+                        setTagsByMemo((previous) => ({
+                          ...previous,
+                          [memoId]: (previous[memoId] ?? []).filter((item) => item.id !== tag.id),
+                        }));
+                        return;
+                      }
+                      const { response } = await detachTodoTag(memoId, tag.id);
+                      if (!response.ok) throw new Error();
+                      setTagsByMemo((previous) => ({
+                        ...previous,
+                        [memoId]: (previous[memoId] ?? []).filter((item) => item.id !== tag.id),
+                      }));
+                    }}
+                  />
+                  {tagLoadErrors[selectedMemo.id] ? (
+                    <p role="alert" className="text-sm text-red-700">
+                      メモのタグ取得に失敗しました。
+                      <button
+                        type="button"
+                        className="ml-2 underline"
+                        onClick={() => {
+                          setTagLoadErrors((previous) => ({
+                            ...previous,
+                            [selectedMemo.id]: false,
+                          }));
+                          setTagsByMemo((previous) => {
+                            const next = { ...previous };
+                            delete next[selectedMemo.id];
+                            return next;
+                          });
+                        }}
+                      >
+                        再読み込み
+                      </button>
+                    </p>
+                  ) : null}
+                  {tagAttachmentError ? (
+                    <p role="alert" className="text-sm text-red-700">
+                      タグの付与に失敗しました。
+                      <button
+                        type="button"
+                        className="ml-2 underline"
+                        onClick={() => {
+                          setTagAttachmentError(false);
+                          setTagAttachmentRetry((value) => value + 1);
+                        }}
+                      >
+                        再試行
+                      </button>
+                    </p>
+                  ) : null}
+                </>
               ) : undefined
             }
             focusTitle={focusTitleId === selectedMemo.id}
