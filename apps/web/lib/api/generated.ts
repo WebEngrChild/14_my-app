@@ -1,4 +1,42 @@
 export interface paths {
+    "/api/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * タグ一覧・候補を取得する
+         * @description query指定時は名前の部分一致で検索する。省略時は一覧を返す。
+         */
+        get: operations["listTags"];
+        put?: never;
+        /** タグを作成する */
+        post: operations["createTag"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tags/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** タグを削除する */
+        delete: operations["deleteTag"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/todos": {
         parameters: {
             query?: never;
@@ -39,10 +77,21 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @description タグ作成入力 */
+        TagCreateInput: {
+            name: string;
+        };
         /** @description TODO更新入力(部分更新) */
         TodoUpdateInput: {
             title?: string;
             body?: string;
+        };
+        /** @description タグ一覧 */
+        TagList: components["schemas"]["Tag"][];
+        /** @description タグ */
+        Tag: {
+            id: number;
+            name: string;
         };
         /** @description TODO一覧 */
         TodoList: components["schemas"]["Todo"][];
@@ -65,6 +114,102 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    listTags: {
+        parameters: {
+            query?: {
+                query?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description タグ一覧の取得成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "id": 1,
+                     *         "name": "仕事"
+                     *       },
+                     *       {
+                     *         "id": 2,
+                     *         "name": "仕事関連"
+                     *       }
+                     *     ]
+                     */
+                    "application/json": components["schemas"]["TagList"];
+                };
+            };
+        };
+    };
+    createTag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                /**
+                 * @example {
+                 *       "name": "仕事"
+                 *     }
+                 */
+                "application/json": components["schemas"]["TagCreateInput"];
+            };
+        };
+        responses: {
+            /** @description タグの作成成功 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": 1,
+                     *       "name": "仕事"
+                     *     }
+                     */
+                    "application/json": components["schemas"]["Tag"];
+                };
+            };
+        };
+    };
+    deleteTag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description タグの削除成功 */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 指定したidのタグが存在しない */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     listTodos: {
         parameters: {
             query?: never;

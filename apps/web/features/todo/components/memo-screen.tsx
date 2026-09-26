@@ -10,12 +10,14 @@ import MemoList from "./memo-list";
 import MemoSaveErrorNotice from "./memo-save-error-notice";
 import MemoSaveStatus from "./memo-save-status";
 import MemoStatusMessage from "./memo-status-message";
+import MemoTags from "./memo-tags";
 import MemoWorkspace from "./memo-workspace";
 import NewMemoButton from "./new-memo-button";
 
 type MemoScreenProps = {
   memos: components["schemas"]["Todo"][];
   saveMemo?: MemoSaver;
+  enableTags?: boolean;
 };
 
 type MemoDraft = Pick<components["schemas"]["Todo"], "title" | "body"> & { updatedAt: string };
@@ -26,7 +28,10 @@ function byUpdatedAtDesc(a: components["schemas"]["Todo"], b: components["schema
   return b.id - a.id;
 }
 
-export default function MemoScreen({ memos, saveMemo }: MemoScreenProps) {
+export default function MemoScreen({ memos, saveMemo, enableTags = false }: MemoScreenProps) {
+  const [tagsByMemo, setTagsByMemo] = useState<
+    Partial<Record<number, components["schemas"]["Tag"][]>>
+  >({});
   const { scheduleSave, retrySave, saveStates } = useMemoAutosave(saveMemo);
   const [selectedId, setSelectedId] = useState<number | null>(memos[0]?.id ?? null);
   const [newMemos, setNewMemos] = useState<components["schemas"]["Todo"][]>([]);
@@ -123,6 +128,31 @@ export default function MemoScreen({ memos, saveMemo }: MemoScreenProps) {
         selectedMemo && draft ? (
           <MemoEditor
             key={selectedMemo.id}
+            tags={
+              enableTags ? (
+                <MemoTags
+                  tags={tagsByMemo[selectedMemo.id] ?? []}
+                  onSelect={(tag) => {
+                    const memoId = selectedMemo.id;
+                    setTagsByMemo((previous) => {
+                      const tags = previous[memoId] ?? [];
+                      if (tags.some((item) => item.id === tag.id)) return previous;
+                      return { ...previous, [memoId]: [...tags, tag] };
+                    });
+                  }}
+                  onDelete={(id) => {
+                    setTagsByMemo((previous) =>
+                      Object.fromEntries(
+                        Object.entries(previous).map(([memoId, tags]) => [
+                          memoId,
+                          (tags ?? []).filter((tag) => tag.id !== id),
+                        ]),
+                      ),
+                    );
+                  }}
+                />
+              ) : undefined
+            }
             focusTitle={focusTitleId === selectedMemo.id}
             title={draft.title}
             body={draft.body}

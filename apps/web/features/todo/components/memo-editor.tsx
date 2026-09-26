@@ -1,6 +1,8 @@
+import type { ReactNode } from "react";
 import { useEffect, useRef } from "react";
 
 type MemoEditorProps = {
+  tags?: ReactNode;
   focusTitle?: boolean;
   title: string;
   body: string;
@@ -9,6 +11,7 @@ type MemoEditorProps = {
 };
 
 export default function MemoEditor({
+  tags,
   title,
   body,
   onTitleChange,
@@ -32,6 +35,7 @@ export default function MemoEditor({
         placeholder="無題のメモ"
         className="w-full min-w-0 rounded-sm border-0 bg-transparent p-0 text-[22px] leading-7 font-semibold text-[#111] placeholder:text-[#999] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#999] md:text-[28px] md:leading-9"
       />
+      {tags}
       <textarea
         aria-label="メモの本文"
         value={body}

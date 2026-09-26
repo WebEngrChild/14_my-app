@@ -1,6 +1,6 @@
 import { createDocument } from "zod-openapi";
 
-import { TagCreateInput, TagListQuery, TagListSchema, TagSchema } from "./schemas/tag";
+import { TagCreateInput, TagIdParam, TagListQuery, TagListSchema, TagSchema } from "./schemas/tag";
 import {
   TodoCreateInput,
   TodoIdParam,
@@ -90,6 +90,24 @@ export const openApiDocument = createDocument({
                 example: tagExamples[0],
               },
             },
+          },
+        },
+      },
+    },
+    "/api/tags/{id}": {
+      delete: {
+        operationId: "deleteTag",
+        summary: "タグを削除する",
+        tags: ["Tags"],
+        requestParams: {
+          path: TagIdParam,
+        },
+        responses: {
+          "204": {
+            description: "タグの削除成功",
+          },
+          "404": {
+            description: "指定したidのタグが存在しない",
           },
         },
       },

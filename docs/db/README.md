@@ -4,6 +4,8 @@
 |------|---------|---------|
 | [account](./account.md) | 14 |  |
 | [session](./session.md) | 8 |  |
+| [tags](./tags.md) | 2 |  |
+| [todo_tags](./todo_tags.md) | 2 |  |
 | [todos](./todos.md) | 5 |  |
 | [user](./user.md) | 7 |  |
 | [verification](./verification.md) | 6 |  |
@@ -16,6 +18,8 @@
 erDiagram
     account }o--|| user : "user_id"
     session }o--|| user : "user_id"
+    todo_tags }o--|| todos : "todo_id"
+    todo_tags }o--|| tags : "tag_id"
 
     account {
         text id PK
@@ -42,6 +46,14 @@ erDiagram
         text ip_address
         text user_agent
         text user_id FK
+    }
+    tags {
+        int id PK
+        text name
+    }
+    todo_tags {
+        int todo_id FK
+        int tag_id FK
     }
     todos {
         int id PK

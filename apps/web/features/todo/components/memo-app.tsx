@@ -39,5 +39,5 @@ export default function MemoApp() {
     );
   }
 
-  return <MemoScreen memos={todos} saveMemo={saveMemo} />;
+  return <MemoScreen memos={todos} saveMemo={saveMemo} enableTags />;
 }
