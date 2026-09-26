@@ -24,7 +24,9 @@ test("新規作成したメモのタイトルと本文が反映される", async
   await expect(firstItem).toContainText(body);
 
   // 自動保存(800msデバウンス)完了後、保存が成功したことも確認する
-  await expect(page.getByRole("status")).toHaveText("保存済み", { timeout: 10_000 });
+  await expect(page.getByRole("status", { name: "メモの保存状態" })).toHaveText("保存済み", {
+    timeout: 10_000,
+  });
 });
 
 test("新規作成したメモが一覧の先頭に降順で表示される", async ({ page }) => {

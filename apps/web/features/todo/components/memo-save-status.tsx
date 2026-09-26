@@ -23,7 +23,7 @@ export default function MemoSaveStatus({
     <div className="space-y-1 text-xs text-[#666]">
       <p>変更は自動保存されます</p>
       <div className="flex items-center gap-3">
-        <p role="status" aria-live="polite">
+        <p role="status" aria-label="メモの保存状態" aria-live="polite">
           {labels[status]}
         </p>
         {status === "error" ? (

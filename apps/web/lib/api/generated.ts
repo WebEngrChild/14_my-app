@@ -73,6 +73,41 @@ export interface paths {
         patch: operations["updateTodo"];
         trace?: never;
     };
+    "/api/todos/{id}/tags": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** メモに付いたタグを取得する */
+        get: operations["listTodoTags"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/todos/{id}/tags/{tagId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** メモにタグを付ける */
+        put: operations["attachTodoTag"];
+        post?: never;
+        /** メモからタグを外す */
+        delete: operations["detachTodoTag"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -180,6 +215,13 @@ export interface operations {
                      */
                     "application/json": components["schemas"]["Tag"];
                 };
+            };
+            /** @description 同じ名前のタグが既に存在する */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -363,6 +405,103 @@ export interface operations {
                 };
             };
             /** @description 指定したidのTODOが存在しない */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    listTodoTags: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description メモのタグ一覧 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example [
+                     *       {
+                     *         "id": 1,
+                     *         "name": "仕事"
+                     *       },
+                     *       {
+                     *         "id": 2,
+                     *         "name": "仕事関連"
+                     *       }
+                     *     ]
+                     */
+                    "application/json": components["schemas"]["TagList"];
+                };
+            };
+            /** @description 指定したidのメモが存在しない */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    attachTodoTag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+                tagId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description タグの付与成功。既に付いている場合も成功 */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 指定したメモまたはタグが存在しない */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    detachTodoTag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: number;
+                tagId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description タグの解除成功。既に外れている場合も成功 */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 指定したメモまたはタグが存在しない */
             404: {
                 headers: {
                     [name: string]: unknown;

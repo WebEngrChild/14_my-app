@@ -1,6 +1,13 @@
 import { createDocument } from "zod-openapi";
 
-import { TagCreateInput, TagIdParam, TagListQuery, TagListSchema, TagSchema } from "./schemas/tag";
+import {
+  TagCreateInput,
+  TagIdParam,
+  TagListQuery,
+  TagListSchema,
+  TagSchema,
+  TodoTagIdsParam,
+} from "./schemas/tag";
 import {
   TodoCreateInput,
   TodoIdParam,
@@ -90,6 +97,9 @@ export const openApiDocument = createDocument({
                 example: tagExamples[0],
               },
             },
+          },
+          "409": {
+            description: "同じ名前のタグが既に存在する",
           },
         },
       },
@@ -214,6 +224,48 @@ export const openApiDocument = createDocument({
           "404": {
             description: "指定したidのTODOが存在しない",
           },
+        },
+      },
+    },
+    "/api/todos/{id}/tags": {
+      get: {
+        operationId: "listTodoTags",
+        summary: "メモに付いたタグを取得する",
+        tags: ["Tags"],
+        requestParams: { path: TodoIdParam },
+        responses: {
+          "200": {
+            description: "メモのタグ一覧",
+            content: {
+              "application/json": {
+                schema: TagListSchema,
+                example: tagExamples,
+              },
+            },
+          },
+          "404": { description: "指定したidのメモが存在しない" },
+        },
+      },
+    },
+    "/api/todos/{id}/tags/{tagId}": {
+      put: {
+        operationId: "attachTodoTag",
+        summary: "メモにタグを付ける",
+        tags: ["Tags"],
+        requestParams: { path: TodoTagIdsParam },
+        responses: {
+          "204": { description: "タグの付与成功。既に付いている場合も成功" },
+          "404": { description: "指定したメモまたはタグが存在しない" },
+        },
+      },
+      delete: {
+        operationId: "detachTodoTag",
+        summary: "メモからタグを外す",
+        tags: ["Tags"],
+        requestParams: { path: TodoTagIdsParam },
+        responses: {
+          "204": { description: "タグの解除成功。既に外れている場合も成功" },
+          "404": { description: "指定したメモまたはタグが存在しない" },
         },
       },
     },

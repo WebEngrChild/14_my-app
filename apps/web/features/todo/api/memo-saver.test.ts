@@ -19,6 +19,7 @@ describe("API経由の自動保存", () => {
       },
     });
     await save({ localId: -1, input, isNew: true, signal });
+    expect(save.resolveId?.(-1)).toBe(1);
     await save({ localId: -1, input: { ...input, title: "更新" }, isNew: true, signal });
     await save({ localId: -2, input, isNew: true, signal });
     await save({ localId: 2, input, isNew: false, signal });
@@ -45,7 +46,9 @@ describe("API経由の自動保存", () => {
     });
     const request = { localId: -1, input, isNew: true, signal };
     await expect(save(request)).rejects.toThrow("作成に失敗");
+    expect(save.resolveId?.(-1)).toBeUndefined();
     await save(request);
+    expect(save.resolveId?.(-1)).toBe(1);
     expect(attempts).toBe(2);
   });
 

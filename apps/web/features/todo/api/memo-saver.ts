@@ -17,7 +17,7 @@ export function createMemoSaver({
 }: Partial<TodoApi> = {}): MemoSaver {
   const createdIds = new Map<number, number>();
 
-  return async ({ localId, input, isNew, signal }) => {
+  const save: MemoSaver = async ({ localId, input, isNew, signal }) => {
     const serverId = createdIds.get(localId);
     if (isNew && serverId === undefined) {
       const { data, response } = await create(input, signal);
@@ -31,4 +31,7 @@ export function createMemoSaver({
     const { response } = await update(serverId ?? localId, input, signal);
     if (!response.ok) throw new Error("メモの更新に失敗しました");
   };
+
+  save.resolveId = (localId) => createdIds.get(localId);
+  return save;
 }
