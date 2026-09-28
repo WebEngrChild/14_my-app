@@ -4,6 +4,12 @@ import "../app/globals.css";
 
 const preview: Preview = {
   parameters: {
+    nextjs: {
+      // このプロジェクトは app/ ディレクトリ(App Router)を使っているため、
+      // next/navigation の useRouter 等が依存する AppRouterContext を有効にする。
+      appDirectory: true,
+    },
+
     controls: {
       matchers: {
         color: /(background|color)$/i,
