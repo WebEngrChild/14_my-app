@@ -42,7 +42,10 @@ async function createTagOnCurrentMemo(page: Page, tagName: string) {
   await expect(page.getByText(`#${tagName}`)).toBeVisible();
 }
 
-test("タグの取得・付与・解除がページ再読み込み後も保持される", async ({ page, trackTodoForCleanup }) => {
+test("タグの取得・付与・解除がページ再読み込み後も保持される", async ({
+  page,
+  trackTodoForCleanup,
+}) => {
   await loginAsTestUser(page);
 
   const suffix = Date.now();

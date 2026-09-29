@@ -11,17 +11,19 @@ type HeaderSearchProps = {
   query?: string;
   memoResults?: MemoResult[];
   tagResults?: string[];
+  onFocus?: () => void;
   onQueryChange?: (query: string) => void;
   onSelectMemo?: (id: number) => void;
   onSelectTag?: (tag: string) => void;
 };
 
-const HeaderSearch = forwardRef<HTMLInputElement, HeaderSearchProps>(function HeaderSearch(
+const HeaderSearch = forwardRef<HTMLDivElement, HeaderSearchProps>(function HeaderSearch(
   {
     state = "Idle",
     query = "",
     memoResults = [],
     tagResults = [],
+    onFocus,
     onQueryChange,
     onSelectMemo,
     onSelectTag,
@@ -33,11 +35,11 @@ const HeaderSearch = forwardRef<HTMLInputElement, HeaderSearchProps>(function He
   const isOpen = state === "Open";
 
   return (
-    <div className="relative w-full max-w-xs">
+    <div ref={ref} className="relative w-full max-w-xs">
       <input
-        ref={ref}
         type="text"
         value={query}
+        onFocus={onFocus}
         onChange={(event) => onQueryChange?.(event.target.value)}
         placeholder="メモを検索（#でタグ検索）"
         aria-label="メモ・タグを検索"
