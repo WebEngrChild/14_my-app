@@ -70,12 +70,18 @@ const HeaderSearch = forwardRef<HTMLDivElement, HeaderSearchProps>(function Head
         onChange={(event) => onQueryChange?.(event.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="メモを検索（#でタグ検索）"
-        aria-label="メモ・タグを検索"
+        aria-label={isTagMode ? "タグを検索" : "メモを検索"}
         className="h-9 w-full rounded-full border border-[#e5e5ea] bg-[#f5f5f7] px-4 text-[14px] leading-[17px] text-[#1f1f24] placeholder:text-[#999] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#5f52e9]"
       />
 
       {isOpen ? (
         <div className="absolute top-full left-0 z-10 mt-2 w-full overflow-hidden rounded-[10px] bg-white py-2 shadow-lg">
+          <p
+            aria-hidden="true"
+            className="px-4 pb-1 text-[11px] font-semibold tracking-wide text-[#999]"
+          >
+            {isTagMode ? "タグ検索" : "メモ検索"}
+          </p>
           {isTagMode ? (
             tagResults.length > 0 ? (
               <ul aria-label="タグ候補">
