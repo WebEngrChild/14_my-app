@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef, useState } from "react";
 
 type MemoResult = {
   id: number;
@@ -33,6 +33,33 @@ const HeaderSearch = forwardRef<HTMLDivElement, HeaderSearchProps>(function Head
   // "#" から始まる場合はタグ検索、それ以外はメモ本文検索として扱う。
   const isTagMode = query.startsWith("#");
   const isOpen = state === "Open";
+  const activeResultCount = isTagMode ? tagResults.length : memoResults.length;
+
+  const [highlightedIndex, setHighlightedIndex] = useState(0);
+
+  // モード切り替え・開閉・候補件数が変わったタイミングで先頭に戻す(レンダー中に調整する公式パターン)。
+  const resetKey = `${isOpen}:${isTagMode}:${activeResultCount}`;
+  const [prevResetKey, setPrevResetKey] = useState(resetKey);
+  if (resetKey !== prevResetKey) {
+    setPrevResetKey(resetKey);
+    setHighlightedIndex(0);
+  }
+
+  function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (!isOpen || activeResultCount === 0) return;
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setHighlightedIndex((index) => (index + 1) % activeResultCount);
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setHighlightedIndex((index) => (index - 1 + activeResultCount) % activeResultCount);
+    } else if (event.key === "Enter") {
+      event.preventDefault();
+      if (isTagMode) onSelectTag?.(tagResults[highlightedIndex]);
+      else onSelectMemo?.(memoResults[highlightedIndex]?.id);
+    }
+  }
 
   return (
     <div ref={ref} className="relative w-full max-w-xs">
@@ -41,6 +68,7 @@ const HeaderSearch = forwardRef<HTMLDivElement, HeaderSearchProps>(function Head
         value={query}
         onFocus={onFocus}
         onChange={(event) => onQueryChange?.(event.target.value)}
+        onKeyDown={handleKeyDown}
         placeholder="メモを検索（#でタグ検索）"
         aria-label="メモ・タグを検索"
         className="h-9 w-full rounded-full border border-[#e5e5ea] bg-[#f5f5f7] px-4 text-[14px] leading-[17px] text-[#1f1f24] placeholder:text-[#999] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#5f52e9]"
@@ -51,12 +79,16 @@ const HeaderSearch = forwardRef<HTMLDivElement, HeaderSearchProps>(function Head
           {isTagMode ? (
             tagResults.length > 0 ? (
               <ul aria-label="タグ候補">
-                {tagResults.map((tag) => (
+                {tagResults.map((tag, index) => (
                   <li key={tag}>
                     <button
                       type="button"
+                      role="option"
+                      aria-selected={index === highlightedIndex}
                       onClick={() => onSelectTag?.(tag)}
-                      className="flex h-9 w-full items-center px-4 text-left text-[14px] text-[#1f1f24] hover:bg-[#f5f5f7]"
+                      className={`flex h-9 w-full items-center px-4 text-left text-[14px] text-[#1f1f24] hover:bg-[#f5f5f7] ${
+                        index === highlightedIndex ? "bg-[#f5f5f7]" : ""
+                      }`}
                     >
                       #{tag}
                     </button>
@@ -68,12 +100,16 @@ const HeaderSearch = forwardRef<HTMLDivElement, HeaderSearchProps>(function Head
             )
           ) : memoResults.length > 0 ? (
             <ul aria-label="メモ候補">
-              {memoResults.map((memo) => (
+              {memoResults.map((memo, index) => (
                 <li key={memo.id}>
                   <button
                     type="button"
+                    role="option"
+                    aria-selected={index === highlightedIndex}
                     onClick={() => onSelectMemo?.(memo.id)}
-                    className="flex w-full flex-col items-start px-4 py-2 text-left hover:bg-[#f5f5f7]"
+                    className={`flex w-full flex-col items-start px-4 py-2 text-left hover:bg-[#f5f5f7] ${
+                      index === highlightedIndex ? "bg-[#f5f5f7]" : ""
+                    }`}
                   >
                     <span className="w-full truncate text-[14px] font-semibold text-[#1f1f24]">
                       {memo.title || "無題のメモ"}
