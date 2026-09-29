@@ -6,9 +6,10 @@ const meta = {
   title: "Components/Layout/HeaderSearch",
   component: HeaderSearch,
   parameters: { layout: "centered" },
-  args: { state: "Idle", query: "", memoResults: [], tagResults: [] },
+  args: { state: "Idle", query: "", status: "Success", memoResults: [], tagResults: [] },
   argTypes: {
     state: { control: "select", options: ["Idle", "Open"] },
+    status: { control: "select", options: ["Loading", "Error", "Success"] },
   },
   decorators: [
     (Story) => (
@@ -56,5 +57,21 @@ export const TagSearchNoResults: Story = {
   args: {
     state: "Open",
     query: "#存在しないタグ",
+  },
+};
+
+export const Loading: Story = {
+  args: {
+    state: "Open",
+    query: "会議",
+    status: "Loading",
+  },
+};
+
+export const SearchError: Story = {
+  args: {
+    state: "Open",
+    query: "会議",
+    status: "Error",
   },
 };

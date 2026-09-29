@@ -9,9 +9,11 @@ type MemoResult = {
 type HeaderSearchProps = {
   state?: "Idle" | "Open";
   query?: string;
+  status?: "Loading" | "Error" | "Success";
   memoResults?: MemoResult[];
   tagResults?: string[];
   onFocus?: () => void;
+  onRetry?: () => void;
   onQueryChange?: (query: string) => void;
   onSelectMemo?: (id: number) => void;
   onSelectTag?: (tag: string) => void;
@@ -21,9 +23,11 @@ const HeaderSearch = forwardRef<HTMLDivElement, HeaderSearchProps>(function Head
   {
     state = "Idle",
     query = "",
+    status = "Success",
     memoResults = [],
     tagResults = [],
     onFocus,
+    onRetry,
     onQueryChange,
     onSelectMemo,
     onSelectTag,
@@ -33,7 +37,8 @@ const HeaderSearch = forwardRef<HTMLDivElement, HeaderSearchProps>(function Head
   // "#" から始まる場合はタグ検索、それ以外はメモ本文検索として扱う。
   const isTagMode = query.startsWith("#");
   const isOpen = state === "Open";
-  const activeResultCount = isTagMode ? tagResults.length : memoResults.length;
+  const activeResultCount =
+    status === "Success" ? (isTagMode ? tagResults.length : memoResults.length) : 0;
 
   const [highlightedIndex, setHighlightedIndex] = useState(0);
 
@@ -82,7 +87,20 @@ const HeaderSearch = forwardRef<HTMLDivElement, HeaderSearchProps>(function Head
           >
             {isTagMode ? "タグ検索" : "メモ検索"}
           </p>
-          {isTagMode ? (
+          {status === "Loading" ? (
+            <p role="status" aria-live="polite" className="px-4 py-2 text-[13px] text-[#999]">
+              検索中…
+            </p>
+          ) : status === "Error" ? (
+            <div role="alert" className="flex items-center justify-between gap-2 px-4 py-2">
+              <span className="text-[13px] text-red-700">
+                {isTagMode ? "タグの検索に失敗しました" : "メモの検索に失敗しました"}
+              </span>
+              <button type="button" onClick={onRetry} className="shrink-0 text-[13px] underline">
+                再試行
+              </button>
+            </div>
+          ) : isTagMode ? (
             tagResults.length > 0 ? (
               <ul aria-label="タグ候補">
                 {tagResults.map((tag, index) => (
