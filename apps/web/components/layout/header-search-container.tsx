@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useMemoSearch } from "@/features/todo/context/memo-search-context";
 import { useHeaderSearch } from "@/features/todo/hooks/use-header-search";
 import HeaderSearch from "./header-search";
 
@@ -9,6 +10,7 @@ export default function HeaderSearchContainer() {
   const [isOpen, setIsOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const { status, memoResults, tagResults, retry } = useHeaderSearch(query, isOpen);
+  const { requestOpenMemo } = useMemoSearch();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -43,6 +45,10 @@ export default function HeaderSearchContainer() {
       tagResults={tagResults}
       onFocus={() => setIsOpen(true)}
       onRetry={retry}
+      onSelectMemo={(id) => {
+        requestOpenMemo(id);
+        setIsOpen(false);
+      }}
       onQueryChange={(value) => {
         setQuery(value);
         setIsOpen(true);

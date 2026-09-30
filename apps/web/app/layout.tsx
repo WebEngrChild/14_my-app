@@ -1,5 +1,6 @@
 import "./globals.css";
 import Header from "@/components/layout/header";
+import { MemoSearchProvider } from "@/features/todo/context/memo-search-context";
 
 export default function RootLayout({
   children,
@@ -9,9 +10,11 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className="grid h-dvh grid-rows-[auto_minmax(0,1fr)]">
-        <Header />
+        <MemoSearchProvider>
+          <Header />
 
-        {children}
+          {children}
+        </MemoSearchProvider>
       </body>
     </html>
   );

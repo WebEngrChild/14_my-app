@@ -7,6 +7,7 @@ import { attachTodoTag } from "../api/attach-todo-tag";
 import { detachTodoTag } from "../api/detach-todo-tag";
 import { getTodoTags } from "../api/get-todo-tags";
 import type { MemoSaver } from "../autosave/types";
+import { useMemoSearch } from "../context/memo-search-context";
 import { useMemoAutosave } from "../hooks/use-memo-autosave";
 import MemoEditor from "./memo-editor";
 import MemoList from "./memo-list";
@@ -45,6 +46,7 @@ export default function MemoScreen({ memos, saveMemo, enableTags = false }: Memo
   const failedTagAttachments = useRef(new Set<string>());
   const lastTagAttachmentRetry = useRef(0);
   const { scheduleSave, retrySave, saveStates } = useMemoAutosave(saveMemo);
+  const { openMemoRequest } = useMemoSearch();
   const [selectedId, setSelectedId] = useState<number | null>(memos[0]?.id ?? null);
   const [newMemos, setNewMemos] = useState<components["schemas"]["Todo"][]>([]);
   const nextLocalId = useRef(-1);
@@ -62,6 +64,14 @@ export default function MemoScreen({ memos, saveMemo, enableTags = false }: Memo
   const activeId = selectedMemo?.id ?? null;
   const draft = selectedMemo ? (drafts[selectedMemo.id] ?? selectedMemo) : null;
   const failedIds = allMemos.map((memo) => memo.id).filter((id) => saveStates[id] === "error");
+
+  // ヘッダー検索で選ばれたメモを開く。同じメモの再選択も nonce で検知する。
+  useEffect(() => {
+    if (!openMemoRequest) return;
+    setSelectedId(openMemoRequest.id);
+    setFocusTitleId(null);
+    setMobileView("editor");
+  }, [openMemoRequest]);
 
   useEffect(() => {
     if (!enableTags || !selectedMemo || selectedMemo.id < 1 || tagsByMemo[selectedMemo.id]) {

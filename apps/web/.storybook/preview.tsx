@@ -1,8 +1,16 @@
 import type { Preview } from "@storybook/nextjs-vite";
 
+import { MemoSearchProvider } from "../features/todo/context/memo-search-context";
 import "../app/globals.css";
 
 const preview: Preview = {
+  decorators: [
+    (Story) => (
+      <MemoSearchProvider>
+        <Story />
+      </MemoSearchProvider>
+    ),
+  ],
   parameters: {
     nextjs: {
       // このプロジェクトは app/ ディレクトリ(App Router)を使っているため、
