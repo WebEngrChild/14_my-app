@@ -31,3 +31,10 @@ export type TodoUpdateInput = z.infer<typeof TodoUpdateInput>;
 export const TodoIdParam = z.object({ id: z.coerce.number().int() });
 
 export type TodoIdParam = z.infer<typeof TodoIdParam>;
+
+export const TodoListQuery = z.object({
+  q: z.string().trim().optional(),
+  tag: z.string().trim().optional(),
+});
+
+export type TodoListQuery = z.infer<typeof TodoListQuery>;

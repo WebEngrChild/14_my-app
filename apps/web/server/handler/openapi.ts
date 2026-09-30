@@ -11,6 +11,7 @@ import {
 import {
   TodoCreateInput,
   TodoIdParam,
+  TodoListQuery,
   TodoListSchema,
   TodoSchema,
   TodoUpdateInput,
@@ -126,8 +127,12 @@ export const openApiDocument = createDocument({
       get: {
         operationId: "listTodos",
         summary: "TODO一覧を取得する",
+        description:
+          "q指定時はタイトル/本文の部分一致、tag指定時はタグ名で絞り込む。省略時は全件を返す。",
         tags: ["Todos"],
-
+        requestParams: {
+          query: TodoListQuery,
+        },
         responses: {
           "200": {
             description: "TODO一覧の取得成功",

@@ -2,6 +2,7 @@ import { createMockServer } from "@scalar/mock-server";
 
 import { openApiDocument } from "../server/handler/openapi";
 
+const todoSchema = openApiDocument.components?.schemas?.Todo;
 const tagSchema = openApiDocument.components?.schemas?.Tag;
 
 // mock専用の振る舞い。公開するOpenAPI定義には追加しない。
@@ -11,6 +12,34 @@ const document = {
     ...openApiDocument.components,
     schemas: {
       ...openApiDocument.components?.schemas,
+      Todo: {
+        ...(typeof todoSchema === "object" ? todoSchema : {}),
+        "x-seed": `
+          seed([
+            {
+              id: 1,
+              title: "買い物リストを更新する",
+              body: "牛乳とパンを買う。帰りにスーパーへ寄る。",
+              createdAt: "2026-09-15T18:15:00+09:00",
+              updatedAt: "2026-09-15T18:15:00+09:00",
+            },
+            {
+              id: 2,
+              title: "Next.jsのメモ",
+              body: "認証まわりの実装方針を整理する。",
+              createdAt: "2026-09-14T21:30:00+09:00",
+              updatedAt: "2026-09-14T21:30:00+09:00",
+            },
+            {
+              id: 3,
+              title: "Figmaでメモアプリのデザインを作成…",
+              body: "メモアプリのレイアウトや余白、文字サイズなどを確認して全体のデザインを整えていく…",
+              createdAt: "2026-09-13T19:10:00+09:00",
+              updatedAt: "2026-09-13T19:10:00+09:00",
+            },
+          ]);
+        `,
+      },
       Tag: {
         ...(typeof tagSchema === "object" ? tagSchema : {}),
         "x-seed": `
@@ -24,6 +53,23 @@ const document = {
   },
   paths: {
     ...openApiDocument.paths,
+    "/api/todos": {
+      ...openApiDocument.paths?.["/api/todos"],
+      get: {
+        ...openApiDocument.paths?.["/api/todos"]?.get,
+        "x-handler": `
+          // mock専用: メモとタグの紐付け(メモid → タグ名)
+          const todoTags = { 1: ["仕事"], 2: ["仕事関連"] };
+          const q = (req.query.q ?? "").trim();
+          const tag = (req.query.tag ?? "").trim();
+          return store.list("Todo").filter(
+            (todo) =>
+              (todo.title.includes(q) || todo.body.includes(q)) &&
+              (tag === "" || (todoTags[todo.id] ?? []).includes(tag)),
+          );
+        `,
+      },
+    },
     "/api/tags": {
       ...openApiDocument.paths?.["/api/tags"],
       get: {

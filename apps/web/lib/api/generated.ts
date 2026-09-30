@@ -44,7 +44,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** TODO一覧を取得する */
+        /**
+         * TODO一覧を取得する
+         * @description q指定時はタイトル/本文の部分一致、tag指定時はタグ名で絞り込む。省略時は全件を返す。
+         */
         get: operations["listTodos"];
         put?: never;
         /** TODOを作成する */
@@ -254,7 +257,10 @@ export interface operations {
     };
     listTodos: {
         parameters: {
-            query?: never;
+            query?: {
+                q?: string;
+                tag?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;

@@ -9,10 +9,11 @@ UI(検索バーの操作性)を先に構築し、バックエンドは後回し�
   - [x] ローディング状態・エラー状態・空状態のUIパターンを追加(現状デザインにない)
   - [x] この段階では `memoResults`/`tagResults` は固定のダミーデータかStorybook用モックで動作確認する
 
-- [ ] フェーズ2: mockサーバー側に検索エンドポイントを用意
-  - [ ] `scripts/mock-server.ts` の `/api/todos` に `x-handler` を追加し、`q`(タイトル/本文部分一致)・`tag`(タグ名)クエリでのフィルタを実装(`/api/tags` の既存モックハンドラと同じ要領)
-  - [ ] 併せて `/api/todos` のOpenAPI定義(またはmock専用の拡張)にクエリパラメータを追加し、型生成 or 手書き型でフロントから叩けるようにする
-  - [ ] 実DBのスキーマ・usecase・repositoryにはまだ触らない
+- [x] フェーズ2: mockサーバー側に検索エンドポイントを用意
+  - [x] `scripts/mock-server.ts` の `/api/todos` に `x-handler` を追加し、`q`(タイトル/本文部分一致)・`tag`(タグ名)クエリでのフィルタを実装(`/api/tags` の既存モックハンドラと同じ要領)
+  - [x] 併せて `/api/todos` のOpenAPI定義にクエリパラメータ(`q`/`tag`)を追加(共有定義に追加する方針)
+  - [x] `generate-api-types.ts` で型を再生成し、フロントから叩けるようにする
+  - [x] 実DBのスキーマ・usecase・repositoryにはまだ触らない
 
 - [ ] フェーズ3: mockサーバーに繋ぎ込み
   - [ ] `features/todo/api/search-todos.ts`(仮)を新設し、mockサーバー相手に `/api/todos?q=...&tag=...` を呼ぶ
