@@ -15,10 +15,10 @@ UI(検索バーの操作性)を先に構築し、バックエンドは後回し�
   - [x] `generate-api-types.ts` で型を再生成し、フロントから叩けるようにする
   - [x] 実DBのスキーマ・usecase・repositoryにはまだ触らない
 
-- [ ] フェーズ3: mockサーバーに繋ぎ込み
-  - [ ] `features/todo/api/search-todos.ts`(仮)を新設し、mockサーバー相手に `/api/todos?q=...&tag=...` を呼ぶ
-  - [ ] デバウンス処理・`AbortController` によるリクエストキャンセルを実装
-  - [ ] フェーズ1で作ったコンテナのダミーデータ部分を実際のAPI呼び出しに差し替え、ローディング/エラー状態を本物の非同期処理に接続
+- [x] フェーズ3: mockサーバーに繋ぎ込み
+  - [x] `features/todo/api/search-todos.ts`(仮)を新設し、mockサーバー相手に `/api/todos?q=...&tag=...` を呼ぶ
+  - [x] デバウンス処理・`AbortController` によるリクエストキャンセルを実装
+  - [x] フェーズ1で作ったコンテナのダミーデータ部分を実際のAPI呼び出しに差し替え、ローディング/エラー状態を本物の非同期処理に接続
 
 - [ ] フェーズ4: Header⇔メモ一覧間の状態共有
   - [ ] `Header`(`layout.tsx`配下)と `MemoScreen`(`page.tsx`配下)が別ツリーである問題を解消(URLクエリパラメータ同期 or Context Providerのどちらかを選定)

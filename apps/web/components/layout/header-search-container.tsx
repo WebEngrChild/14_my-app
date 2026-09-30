@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useHeaderSearch } from "@/features/todo/hooks/use-header-search";
 import HeaderSearch from "./header-search";
 
 export default function HeaderSearchContainer() {
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const { status, memoResults, tagResults, retry } = useHeaderSearch(query, isOpen);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -36,7 +38,11 @@ export default function HeaderSearchContainer() {
       ref={rootRef}
       state={isOpen ? "Open" : "Idle"}
       query={query}
+      status={status}
+      memoResults={memoResults}
+      tagResults={tagResults}
       onFocus={() => setIsOpen(true)}
+      onRetry={retry}
       onQueryChange={(value) => {
         setQuery(value);
         setIsOpen(true);
