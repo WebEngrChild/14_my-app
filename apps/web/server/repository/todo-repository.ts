@@ -2,10 +2,12 @@ import type { Todo } from "@/server/domain/todo";
 
 export type TodoCreateInput = Omit<Todo, "id" | "createdAt" | "updatedAt">;
 export type TodoUpdateInput = Partial<TodoCreateInput>;
+/** q: タイトル/本文の部分一致、tag: タグ名の完全一致。両方指定時はAND。空文字は未指定と同じ扱い。 */
+export type TodoListFilter = { q?: string; tag?: string };
 
 /** TODOの永続化契約。HTTPやORM固有の型には依存しない。 */
 export interface TodoRepository {
-  list(): Promise<Todo[]>;
+  list(filter?: TodoListFilter): Promise<Todo[]>;
   create(input: TodoCreateInput): Promise<Todo>;
   /** 指定された項目だけを更新し、実行時に対象がなければnullを返す。 */
   update(id: number, input: TodoUpdateInput): Promise<Todo | null>;

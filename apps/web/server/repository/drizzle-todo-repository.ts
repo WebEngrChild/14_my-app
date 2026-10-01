@@ -1,9 +1,10 @@
-import { type createDb, desc, eq } from "@my-app/db";
-import { todos } from "@my-app/db/schema";
+import { and, type createDb, desc, eq, exists, or, sql } from "@my-app/db";
+import { tags, todos, todoTags } from "@my-app/db/schema";
 
 import type { Todo } from "@/server/domain/todo";
 import type {
   TodoCreateInput,
+  TodoListFilter,
   TodoRepository,
   TodoUpdateInput,
 } from "@/server/repository/todo-repository";
@@ -27,11 +28,31 @@ const toTodo = (todo: typeof todos.$inferSelect): Todo => ({
 export class DrizzleTodoRepository implements TodoRepository {
   constructor(private readonly db: ReturnType<typeof createDb>) {}
 
-  async list() {
+  async list({ q, tag }: TodoListFilter = {}) {
     // 新しい/直近で更新されたメモが上に並ぶ。更新時刻が同値でも順が揺れないようIDを第2キーにする。
     const rows = await this.db
       .select(columns)
       .from(todos)
+      .where(
+        and(
+          // LIKEのワイルドカード(% _)をエスケープせずに済むよう、タグ検索と同じくstrposで部分一致を判定する。
+          q
+            ? or(
+                sql<boolean>`strpos(${todos.title}, ${q}) > 0`,
+                sql<boolean>`strpos(${todos.body}, ${q}) > 0`,
+              )
+            : undefined,
+          tag
+            ? exists(
+                this.db
+                  .select({ id: todoTags.todoId })
+                  .from(todoTags)
+                  .innerJoin(tags, eq(todoTags.tagId, tags.id))
+                  .where(and(eq(todoTags.todoId, todos.id), eq(tags.name, tag))),
+              )
+            : undefined,
+        ),
+      )
       .orderBy(desc(todos.updatedAt), desc(todos.id));
     return rows.map(toTodo);
   }
