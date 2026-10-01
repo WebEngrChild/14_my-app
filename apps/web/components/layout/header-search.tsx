@@ -80,7 +80,7 @@ const HeaderSearch = forwardRef<HTMLDivElement, HeaderSearchProps>(function Head
       />
 
       {isOpen ? (
-        <div className="absolute top-full left-0 z-10 mt-2 w-full overflow-hidden rounded-[10px] bg-white py-2 shadow-lg">
+        <div className="absolute top-full left-0 z-10 mt-2 max-h-[min(60vh,420px)] w-full overflow-y-auto rounded-[10px] bg-white py-2 shadow-lg">
           <p
             aria-hidden="true"
             className="px-4 pb-1 text-[11px] font-semibold tracking-wide text-[#999]"

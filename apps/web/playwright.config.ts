@@ -14,9 +14,17 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
   ],
-  webServer: {
-    command: "bun run dev",
-    url: "http://localhost:3000",
-    reuseExistingServer: true,
-  },
+  webServer: [
+    {
+      command: "bun run dev",
+      url: "http://localhost:3000",
+      reuseExistingServer: true,
+    },
+    {
+      // ヘッダー検索のE2Eで、検索系APIをmockサーバーに転送するために使う。
+      command: "bun run mock",
+      port: 4010,
+      reuseExistingServer: true,
+    },
+  ],
 });
