@@ -10,7 +10,7 @@ export default function HeaderSearchContainer() {
   const [isOpen, setIsOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const { status, memoResults, tagResults, retry } = useHeaderSearch(query, isOpen);
-  const { requestOpenMemo } = useMemoSearch();
+  const { requestOpenMemo, setTagFilter } = useMemoSearch();
 
   useEffect(() => {
     if (!isOpen) return;
@@ -47,6 +47,10 @@ export default function HeaderSearchContainer() {
       onRetry={retry}
       onSelectMemo={(id) => {
         requestOpenMemo(id);
+        setIsOpen(false);
+      }}
+      onSelectTag={(tag) => {
+        setTagFilter(tag);
         setIsOpen(false);
       }}
       onQueryChange={(value) => {

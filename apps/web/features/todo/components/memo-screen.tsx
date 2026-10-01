@@ -9,11 +9,13 @@ import { getTodoTags } from "../api/get-todo-tags";
 import type { MemoSaver } from "../autosave/types";
 import { useMemoSearch } from "../context/memo-search-context";
 import { useMemoAutosave } from "../hooks/use-memo-autosave";
+import { useTagFilteredMemoIds } from "../hooks/use-tag-filtered-memo-ids";
 import MemoEditor from "./memo-editor";
 import MemoList from "./memo-list";
 import MemoSaveErrorNotice from "./memo-save-error-notice";
 import MemoSaveStatus from "./memo-save-status";
 import MemoStatusMessage from "./memo-status-message";
+import MemoTagFilterChip from "./memo-tag-filter-chip";
 import MemoTags from "./memo-tags";
 import MemoWorkspace from "./memo-workspace";
 import NewMemoButton from "./new-memo-button";
@@ -46,7 +48,8 @@ export default function MemoScreen({ memos, saveMemo, enableTags = false }: Memo
   const failedTagAttachments = useRef(new Set<string>());
   const lastTagAttachmentRetry = useRef(0);
   const { scheduleSave, retrySave, saveStates } = useMemoAutosave(saveMemo);
-  const { openMemoRequest } = useMemoSearch();
+  const { openMemoRequest, tagFilter, setTagFilter } = useMemoSearch();
+  const tagFiltered = useTagFilteredMemoIds(tagFilter);
   const [selectedId, setSelectedId] = useState<number | null>(memos[0]?.id ?? null);
   const [newMemos, setNewMemos] = useState<components["schemas"]["Todo"][]>([]);
   const nextLocalId = useRef(-1);
@@ -59,6 +62,11 @@ export default function MemoScreen({ memos, saveMemo, enableTags = false }: Memo
   const previewMemos = allMemos
     .map((memo) => ({ ...memo, ...drafts[memo.id] }))
     .sort(byUpdatedAtDesc);
+  // 未保存の新規メモ(負のID)は絞り込み中でも消さずに残す。
+  const filteredIds = tagFiltered.ids;
+  const listedMemos = filteredIds
+    ? previewMemos.filter((memo) => memo.id < 0 || filteredIds.has(memo.id))
+    : previewMemos;
   // 一覧が入れ替わっても下書きを失わないよう選択はIDで保持し、消えたときだけ先頭に戻す。
   const selectedMemo = allMemos.find((memo) => memo.id === selectedId) ?? allMemos[0] ?? null;
   const activeId = selectedMemo?.id ?? null;
@@ -201,13 +209,27 @@ export default function MemoScreen({ memos, saveMemo, enableTags = false }: Memo
           {failedIds.length > 0 ? (
             <MemoSaveErrorNotice count={failedIds.length} onOpen={() => selectMemo(failedIds[0])} />
           ) : null}
-          {previewMemos.length === 0 ? (
+          {tagFilter ? (
+            <MemoTagFilterChip tag={tagFilter} onClear={() => setTagFilter(null)} />
+          ) : null}
+          {tagFiltered.status === "Loading" ? (
+            <MemoStatusMessage message="読み込み中…" />
+          ) : tagFiltered.status === "Error" ? (
+            <p role="alert" className="px-4 py-2 text-sm text-red-700">
+              絞り込みに失敗しました。
+              <button type="button" className="ml-2 underline" onClick={tagFiltered.retry}>
+                再試行
+              </button>
+            </p>
+          ) : tagFilter && listedMemos.length === 0 ? (
+            <MemoStatusMessage message={`#${tagFilter} のメモはありません`} />
+          ) : previewMemos.length === 0 ? (
             <MemoStatusMessage
               message="メモがありません"
               hint="右下の「＋」から新しいメモを作成できます。"
             />
           ) : (
-            <MemoList memos={previewMemos} selectedId={activeId} onSelect={selectMemo} />
+            <MemoList memos={listedMemos} selectedId={activeId} onSelect={selectMemo} />
           )}
         </>
       }
