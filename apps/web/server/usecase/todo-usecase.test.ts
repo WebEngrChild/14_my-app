@@ -31,6 +31,19 @@ test("空文字と空白を含むデータをそのまま返す", async () => {
   expect(await usecase.create({ title: "  title  ", body: "" })).toEqual(rows[0]);
 });
 
+test("一覧の絞り込み条件をそのままリポジトリへ渡す", async () => {
+  const received: unknown[] = [];
+  const usecase = setup({
+    list: async (filter) => {
+      received.push(filter);
+      return [];
+    },
+  });
+  await usecase.list({ q: "認証", tag: "仕事" });
+  await usecase.list();
+  expect(received).toEqual([{ q: "認証", tag: "仕事" }, undefined]);
+});
+
 test("部分更新を事前読取や全項目更新に変換しない", async () => {
   const usecase = setup({
     list: async () => {

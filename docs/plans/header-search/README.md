@@ -29,12 +29,12 @@ UI(検索バーの操作性)を先に構築し、バックエンドは後回し�
   - [x] Storybookに実データ相当のStory(候補あり/空/ローディング/エラー)を追加
   - [x] mockサーバーを使ったE2Eテスト(メモ検索・タグ検索・選択後の遷移)を追加
 
-- [ ] フェーズ6: 本番バックエンド実装への切り替え
+- [x] フェーズ6: 本番バックエンド実装への切り替え
   - [x] `TodoRepository`(interface/Drizzle実装)に `q`/`tag` 検索を実装
-  - [ ] `TodoUseCase.list()` / `TodoHandler.list(request)` / `app/api/todos/route.ts` をクエリパラメータ対応に変更
-  - [ ] OpenAPIスキーマを正式に更新し、`generate-api-types.ts` で型を再生成(mock専用定義から本番定義への統合)
-  - [ ] usecase/handlerの単体テスト、リポジトリの統合テストを追加
+  - [x] `TodoUseCase.list()` / `TodoHandler.list(request)` / `app/api/todos/route.ts` をクエリパラメータ対応に変更
+  - [x] OpenAPIスキーマを正式に更新し、`generate-api-types.ts` で型を再生成(mock専用定義から本番定義への統合)
+  - [x] usecase/handlerの単体テスト、リポジトリの統合テストを追加
 
-- [ ] フェーズ7: 最終確認
-  - [ ] mock切り替えではなく実バックエンド相手にE2E含めて再検証
-  - [ ] mock専用ハンドラと本番挙動に差異がないか確認
+- [x] フェーズ7: 最終確認
+  - [x] mock切り替えではなく実バックエンド相手にE2E含めて再検証
+  - [x] mock専用ハンドラと本番挙動に差異がないか確認

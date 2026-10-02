@@ -1,5 +1,6 @@
 import {
   TodoCreateInput,
+  TodoListQuery,
   TodoListSchema,
   TodoSchema,
   TodoUpdateInput,
@@ -10,8 +11,9 @@ import type { TodoUseCase } from "@/server/usecase/todo-usecase";
 export class TodoHandler {
   constructor(private readonly usecase: TodoUseCase) {}
 
-  async list() {
-    const todos = TodoListSchema.parse(await this.usecase.list());
+  async list(request: Request) {
+    const query = TodoListQuery.parse(Object.fromEntries(new URL(request.url).searchParams));
+    const todos = TodoListSchema.parse(await this.usecase.list(query));
     return Response.json(todos);
   }
 

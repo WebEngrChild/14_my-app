@@ -128,7 +128,7 @@ export const openApiDocument = createDocument({
         operationId: "listTodos",
         summary: "TODO一覧を取得する",
         description:
-          "q指定時はタイトル/本文の部分一致、tag指定時はタグ名で絞り込む。省略時は全件を返す。",
+          "q指定時はタイトル/本文の部分一致、tag指定時はタグ名の完全一致で絞り込む。両方指定時はAND。前後の空白は除去し、空文字は未指定として全件を返す。",
         tags: ["Todos"],
         requestParams: {
           query: TodoListQuery,

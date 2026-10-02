@@ -1,5 +1,6 @@
 import type {
   TodoCreateInput,
+  TodoListFilter,
   TodoRepository,
   TodoUpdateInput,
 } from "@/server/repository/todo-repository";
@@ -8,8 +9,8 @@ import type {
 export class TodoUseCase {
   constructor(private readonly repository: TodoRepository) {}
 
-  async list() {
-    return this.repository.list();
+  async list(filter?: TodoListFilter) {
+    return this.repository.list(filter);
   }
 
   async create(input: TodoCreateInput) {

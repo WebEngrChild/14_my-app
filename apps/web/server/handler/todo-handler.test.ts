@@ -27,11 +27,28 @@ const request = (body: unknown) =>
     method: "POST",
     body: JSON.stringify(body),
   });
+const listRequest = (search = "") => new Request(`http://localhost/api/todos${search}`);
 
 test("一覧は200で空文字・空白を保持する", async () => {
-  const response = await setup().list();
+  const response = await setup().list(listRequest());
   expect(response.status).toBe(200);
   expect(await response.json()).toEqual([todo]);
+});
+
+test("一覧はクエリのq/tagをトリムして絞り込み条件として渡す", async () => {
+  const received: unknown[] = [];
+  const handler = setup({
+    list: async (filter) => {
+      received.push(filter);
+      return [];
+    },
+  });
+  await handler.list(
+    listRequest(`?q=${encodeURIComponent(" 認証 ")}&tag=${encodeURIComponent("仕事")}`),
+  );
+  await handler.list(listRequest("?q=%20%20"));
+  await handler.list(listRequest());
+  expect(received).toEqual([{ q: "認証", tag: "仕事" }, { q: "" }, {}]);
 });
 
 test("作成は検証済みの入力を渡し201を返す", async () => {
@@ -89,5 +106,5 @@ test("不正な入力・JSON・出力の例外は変更前どおり伝播する"
     handler.create(new Request("http://localhost", { method: "POST", body: "{" })),
   ).rejects.toBeInstanceOf(SyntaxError);
   const invalid = setup({ list: async () => [{ ...todo, id: 1.5 }] });
-  await expect(invalid.list()).rejects.toBeInstanceOf(z.ZodError);
+  await expect(invalid.list(listRequest())).rejects.toBeInstanceOf(z.ZodError);
 });

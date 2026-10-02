@@ -62,11 +62,15 @@ const document = {
           const todoTags = { 1: ["仕事"], 2: ["仕事関連"] };
           const q = (req.query.q ?? "").trim();
           const tag = (req.query.tag ?? "").trim();
-          return store.list("Todo").filter(
-            (todo) =>
-              (todo.title.includes(q) || todo.body.includes(q)) &&
-              (tag === "" || (todoTags[todo.id] ?? []).includes(tag)),
-          );
+          // 本番と同じく、更新日時の降順・同値ならID降順で返す。
+          return store
+            .list("Todo")
+            .filter(
+              (todo) =>
+                (todo.title.includes(q) || todo.body.includes(q)) &&
+                (tag === "" || (todoTags[todo.id] ?? []).includes(tag)),
+            )
+            .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt) || b.id - a.id);
         `,
       },
     },
@@ -76,7 +80,11 @@ const document = {
         ...openApiDocument.paths?.["/api/tags"]?.get,
         "x-handler": `
           const query = (req.query.query ?? "").trim();
-          return store.list("Tag").filter((tag) => tag.name.includes(query));
+          // 本番と同じく、名前の昇順・同値ならID昇順で返す。
+          return store
+            .list("Tag")
+            .filter((tag) => tag.name.includes(query))
+            .sort((a, b) => a.name.localeCompare(b.name) || a.id - b.id);
         `,
       },
       post: {

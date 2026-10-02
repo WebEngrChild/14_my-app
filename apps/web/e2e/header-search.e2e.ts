@@ -3,7 +3,8 @@ import { expect, test } from "./fixtures";
 
 const MOCK_ORIGIN = "http://localhost:4010";
 
-// 本番APIは q/tag 未対応(フェーズ6で実装)のため、検索系のGETだけmockサーバーへ転送する。
+// mockの固定データでUIの導線を確認するため、検索系のGETだけmockサーバーへ転送する。
+// 実バックエンド相手の確認は header-search.backend.e2e.ts で行う。
 async function useMockSearchApi(page: Page) {
   await page.route(/\/api\/(todos|tags)(\/|\?|$)/, async (route) => {
     const request = route.request();

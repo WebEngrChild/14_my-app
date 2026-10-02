@@ -1,4 +1,4 @@
-import { and, type createDb, desc, eq, exists, or, sql } from "@my-app/db";
+import { and, type Db, desc, eq, exists, or, sql } from "@my-app/db";
 import { tags, todos, todoTags } from "@my-app/db/schema";
 
 import type { Todo } from "@/server/domain/todo";
@@ -26,7 +26,7 @@ const toTodo = (todo: typeof todos.$inferSelect): Todo => ({
 });
 
 export class DrizzleTodoRepository implements TodoRepository {
-  constructor(private readonly db: ReturnType<typeof createDb>) {}
+  constructor(private readonly db: Db) {}
 
   async list({ q, tag }: TodoListFilter = {}) {
     // 新しい/直近で更新されたメモが上に並ぶ。更新時刻が同値でも順が揺れないようIDを第2キーにする。

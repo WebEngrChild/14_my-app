@@ -12,3 +12,6 @@ export function createDb(databaseUrl: string) {
     client,
   });
 }
+
+/** クエリ実行に使うDB。接続クライアントを持たないトランザクションもそのまま渡せる。 */
+export type Db = Omit<ReturnType<typeof createDb>, "$client">;

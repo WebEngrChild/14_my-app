@@ -18,6 +18,7 @@
     "api:generate": "bun --filter web api:generate",
     "db:docs": "drizzle-docs generate ./packages/db/schema.ts -d postgresql -f markdown -o ./docs/db",
     "test:unit": "bun --filter web test:unit",
+    "test:integration": "bun --filter web test:integration",
     "test:e2e": "bun --filter web test:e2e"
   },
   "devDependencies": {
